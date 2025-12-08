@@ -1,6 +1,24 @@
 # Whiskerwood-Project
 Template UE5.6 project for Whiskerwood, including reflected headers and example mods.
 
+## If you are brand new to modding
+
+Please get familiar with the basics of modding with this excellent set of guides:
+
+https://github.com/Dmgvol/UE_Modding/
+
+Also start with a basic mod idea, such as changing a data table value (those that can be found in `Whiskerwood > Content > Data` in FModel).
+
+## Tools
+
+Get started with [basic mod tooling](./Docs/Tools.md) as outlined in the above UE Modding guides.
+
+For `FModel`, you will need the `.usmap` (mappings file) which can be found in the `Automation` folder of this repository (or can be dumped by `UE4SS` if a newer version exists).
+
+## Wiki
+
+Some great docs about the inner workings of the game and how they work are being written up on the [Whiskerwood Wiki](https://wiki.hoodedhorse.com/Whiskerwood/Modding)
+
 ## How to open the project
 
 If you haven't already, install Unreal Engine 5.6.
@@ -15,8 +33,9 @@ This project starts off with some example mod files inside of `Content/Mods`.
 
 As you can see, each mod has its own folder, then there are one or both of:
 
-* `BP_Startup` - This blueprint is spawned by the game when the game loads into the main menu. This is the best place to register mod options or write values to a data table. See the "Some notes" below for more info.
+* `BP_Startup` - This blueprint is spawned by the game **the first time** the game loads into the main menu. This is the best place to register mod options or write values to a data table. See the "Some notes" below for more info.
 * `BP_MapLoad` - This blueprint is spawned by the game while loading into a save. This is the place to do your game logic.
+* `BP_MainMenuLoad` - Triggered after `BP_Startup` but unlike startup, it will be triggered every time the main menu loads, not just the first time. This is good for doing modding on the main menu widgets/logic themselves.
 
 So, to make your own mod:
 
@@ -108,7 +127,7 @@ UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = 
 // Log a message to %localappdata%/Whiskerwood/Logs/modlog.txt
 // The log file will be truncated to 1million chracters after writing.
 UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = "ModAPI")
-    void LogMessage(class UObject *worldContext, FString msg);
+    void LogMessage(class UObject *worldContext, FString msg, bool doPrependDate);
 
 // Read text file in location %localappdata%/Whiskerwood/Mods/MODNAME/FILENAME
 // Read a text file into string. Mod Name must be under 100 chars and alphanumeric. Same limits apply to filename.
