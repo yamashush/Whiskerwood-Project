@@ -31,7 +31,7 @@ To use, [clone](https://docs.github.com/en/desktop/contributing-and-collaboratin
 
 This project starts off with some example mod files inside of `Content/Mods`. 
 
-As you can see, each mod has its own folder, then there are one or both of:
+As you can see, each mod has its own folder, then there are one or more of:
 
 * `BP_Startup` - This blueprint is spawned by the game **the first time** the game loads into the main menu. This is the best place to register mod options or write values to a data table. See the "Some notes" below for more info.
 * `BP_MapLoad` - This blueprint is spawned by the game while loading into a save. This is the place to do your game logic.
@@ -39,11 +39,8 @@ As you can see, each mod has its own folder, then there are one or both of:
 
 So, to make your own mod:
 
-1. Inside of `Content/Mods`, make a new folder with your mod's name, ideally in UpperCamelCase. 
-2. Create a new blueprint with base `Actor` in the mod's folder you created and call it it one of the above two names, depending on what you want to do.
-
-> [!IMPORTANT]
-> Although you can change your mod's folder name later, it is **critical** that your mod folder name is the same name as your installed mod's folder and `.pak` file as the game will look for the folder name in the `.pak` file when it loads it!
+1. Inside of `Content/Mods`, make a new folder with your mod's name, ideally in UpperCamelCase. E.g. `MyMod`.
+2. Create a new blueprint with the base as `Actor` in the mod's folder you created and call it one of the above three names, depending on what you want to do. E.g. `BP_Startup` which would have the path `Content/Mods/MyMod/BP_Startup`.
 
 ## ModAPI
 
@@ -90,6 +87,9 @@ UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = 
 // Returns the list of all data tables accessible through the modapi's read and write calls
 UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = "ModAPI")
     TArray<FName> ListDataTables(class UObject *worldContext);
+
+UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = "ModAPI")
+    TArray<FName> ListLanguageIds(class UObject* WorldContext);
 
 // Outputs the entire data table to the mod log file as json
 // Outputs the full table as JSON to %localappdata%/Whiskerwood/Logs/TABLENAME.json
@@ -140,6 +140,9 @@ UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = 
 // The CSV should have the first row as a header. The first column should be the string id, the second column the translated text
 UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = "ModAPI")
     bool AddNewTranslation(class UObject *worldContext, FString modId, FString translationName);
+
+UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = "ModAPI")
+    bool AddNewStrings(class UObject* WorldContext, FName langId, TMap<FName, FString> idStringPairs);
     
 UFUNCTION(BlueprintCallable, meta = (WorldContext = "worldContext"), Category = "ModAPI")
     void DumpEnglishToLogFolder(class UObject *worldContext);
@@ -235,11 +238,14 @@ Now navigate to the `Windows/Whiskerwood/Content/Paks` folder, you should see al
 
 First copy the pakchunk id file, for the number you entered for your mod files. E.g. you set your id to 42, so copy `pakchunk42-Windows.pak`. 
 
-Navigate to `%localappdata\Whiskerwood\Saved\mods\` and create a folder for your mod. It should have the same name as the mod folder in the unreal engine project. 
+Navigate to `%localappdata\Whiskerwood\Saved\mods\` and create a folder for your mod. It should have the same name as the mod folder in the unreal engine project.
 
 Now paste your `.pak` file into the mod folder.
 
-Rename the `.pak` file to the same name as the mod folder, keeping the `.pak` extension.
+Rename the `.pak` file to the same name as the mod folder in the project, keeping the `.pak` extension.
+
+> [!IMPORTANT]
+> The `.pak` file must be the same name as the mod folder in the unreal engine project! If you change the mod folder name in the project later, make sure the update the `.pak` file name to match it! E.g. if the mod folder in the project is `MyMod`, the `.pak` must be called `MyMod.pak`.
 
 Now your mod is installed! You should also make a `<yourmodname>.uplugin` file and fill in the details, but this is not strictly necessary right now.
 
@@ -251,6 +257,15 @@ Here is an example one:
     "Version" : "1.0",
     "CreatedBy" : "Buckminsterfullerene"
 }
+```
+
+So just to check, you should have the following mod file structure:
+
+```
+%localappdata\Whiskerwood\Saved\mods\
+|- MyMod
+   |- MyMod.pak
+   |- MyMod.uplugin
 ```
 
 ## Automating the installation
