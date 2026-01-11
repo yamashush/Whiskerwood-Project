@@ -13,8 +13,6 @@ Also start with a basic mod idea, such as changing a data table value (those tha
 
 Get started with [basic mod tooling](./Docs/Tools.md) as outlined in the above UE Modding guides.
 
-For `FModel`, you will need the `.usmap` (mappings file) which can be found in the `Automation` folder of this repository (or can be dumped by `UE4SS` if a newer version exists).
-
 ## Wiki
 
 Some great docs about the inner workings of the game and how they work are being written up on the [Whiskerwood Wiki](https://wiki.hoodedhorse.com/Whiskerwood/Modding)
@@ -298,6 +296,10 @@ This is my batch script now:
 ![Automation-1](Docs/Images/Automation-1.png)
 
 So when packaging the mod is done, I run the bat and the game launches with all the mod paks installed!
+
+## Adding localizations into your mod
+
+[Please follow the guide](Docs/Localization.md)
 
 ## Some notes
 
