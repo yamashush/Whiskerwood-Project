@@ -28,3 +28,15 @@ Here are some docs to help you get started with UE4SS:
 - [UE4SS Live Viewer](https://docs.ue4ss.com/dev/feature-overview/live-view.html)
 
 One thing that is very useful with UE4SS is its ability to dump information about the game's classes. You can do a C++ header dump which provides lots of juicy info about the game which you can access from the template.
+
+## FModel
+
+Download FModel from here: https://fmodel.app/
+
+FModel is a fundamental tool for researching how to make a mod and how the game works. You typically need it open alongside Unreal Engine to cross reference and search for stuff.
+
+Please follow these docs to get started with FModel:
+- [Setting up FModel](https://github.com/Dmgvol/UE_Modding/blob/main/TheBasics/ExportingFModel.md)
+- [Using FModel](https://github.com/Dmgvol/UE_Modding/blob/main/TheBasics/UsingFModel.md)
+
+Please note that you can either [dump your own](https://github.com/Dmgvol/UE_Modding/blob/main/TheBasics/Extractingusmap.md#step-3-extract-usmap-file) `.usmap` file using UE4SS, or you can get the `.usmap` file from the `Automation` folder in this project repository.
