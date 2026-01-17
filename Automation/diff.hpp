@@ -33215,8 +33215,8 @@ class UKismetMathLibrary : public UBlueprintFunctionLibrary {
     static float PerlinNoise1D(const float Value);
     static bool PointsAreCoplanar(const TArray<FVector>& points, float Tolerance);
     static FVector ProjectPointOnToPlane(FVector Point, FVector PlaneBase, FVector PlaneNormal);
+    static FVector ProjectVectorOnToPlane(FVector V, FVector PlaneNormal);
     static FVector ProjectVectorOnToVector(FVector V, FVector Target);
-    static FVector ProjectVectorOntoPlane(FVector V, FVector PlaneNormal);
     static float Quat_AngularDistance(const FQuat& A, const FQuat& B);
     static void Quat_EnforceShortestArcWith(FQuat& A, const FQuat& B);
     static FVector Quat_Euler(const FQuat& Q);
@@ -33252,8 +33252,8 @@ class UKismetMathLibrary : public UBlueprintFunctionLibrary {
     static FQuat QuaternionSpringInterp(FQuat Current, FQuat Target, FQuaternionSpringState& SpringState, float Stiffness, float CriticalDampingFactor, float deltaTime, float Mass, float TargetVelocityAmount, bool bInitializeFromTarget);
     static FRotator REase(FRotator A, FRotator B, float Alpha, bool bShortestPath, uint8_t EasingFunc, float BlendExp, int32_t Steps);
     static FLinearColor RGBLinearToHSV(FLinearColor RGB);
+    static void RGBToHSV(FLinearColor InColor, float& H, float& S, float& V, float& A);
     static void RGBToHSV_Vector(FLinearColor RGB, FLinearColor& HSV);
-    static void RGBtoHSV(FLinearColor InColor, float& H, float& S, float& V, float& A);
     static FRotator RInterpTo(FRotator Current, FRotator Target, float deltaTime, float InterpSpeed);
     static FRotator RInterpTo_Constant(FRotator Current, FRotator Target, float deltaTime, float InterpSpeed);
     static FRotator RLerp(FRotator A, FRotator B, float Alpha, bool bShortestPath);
@@ -56786,7 +56786,7 @@ class UContextObjectStore : public UObject {
 
 // Size: 0x20
 struct FDeviceButtonState {
-    /* 0x0000 */ FKey button;
+    /* 0x0000 */ FKey Button;
     /* 0x0018 */ bool bPressed;
     /* 0x0019 */ bool bDown;
     /* 0x001a */ bool bReleased;
@@ -58272,7 +58272,7 @@ class UInterchangeBaseNodeContainer : public UObject {
     void Reset();
     void ResetChildrenCache();
     void SaveToFile(FString Filename);
-    void SetNamespace(FString Namespace, UClass* TargetClass);
+    void SetNamespace(FString Namespace, UClass* targetClass);
     bool SetNodeDesiredChildIndex(FString NodeUniqueID, const int32_t& NewNodeDesiredChildIndex);
     bool SetNodeParentUid(FString NodeUniqueID, FString NewParentNodeUid);
 };
@@ -79544,7 +79544,7 @@ struct FActivePolicySlot {
 // Size: 0x28
 class IAdjacentChangesListener : public UInterface {
 
-    void AdjacentGridCellChanged();
+    void AdjacentGridCellChanged(bool onAddition);
 };
 
 // Size: 0x138
@@ -80287,7 +80287,7 @@ struct FArcoSystemConfig {
     /* 0x0028 */ EDayPhase embarkDayPhase;
 };
 
-// Size: 0x3620
+// Size: 0x3628
 class AArcoSystems : public AActor {
     /* 0x02b0 */ FNewMapInitParams m_newMapParams;
     /* 0x03e8 */ FArcoSystemConfig config;
@@ -80326,71 +80326,71 @@ class AArcoSystems : public AActor {
     /* 0x24d0 */ UClass* m_giftPoolCalculatorClass;
     /* 0x24d8 */ UGiftPools* m_giftPoolCalculator;
     /* 0x24e0 */ FTiledTerrainData m_terrain;
-    /* 0x2d60 */ UClass* m_tiledTerrainClass;
-    /* 0x2d68 */ UClass* m_tiledTerrainConfigMule;
-    /* 0x2d70 */ ATiledBlockTerrain* m_tiledTerrain;
-    /* 0x2d78 */ UTerrainGenerator* m_terrainGenerator;
-    /* 0x2d80 */ UClass* m_terrainGeneratorConfig;
-    /* 0x2d88 */ UOreDistributor* m_oreDistributor;
-    /* 0x2d90 */ UClass* m_oreDistributorConfig;
-    /* 0x2d98 */ UHeatSystem* m_heatSystem;
-    /* 0x2da0 */ UClass* m_heatSystemConfigMule;
-    /* 0x2da8 */ UClass* m_farmCropConfigMule;
-    /* 0x2db0 */ UExpectationSystem* m_expectationSystem;
-    /* 0x2db8 */ UClass* m_expectationSystemConfigMule;
-    /* 0x2dc0 */ UAimSystem* m_aimSystem;
-    /* 0x2dc8 */ UNavySystem* m_navySystem;
-    /* 0x2dd0 */ UClass* m_mineVizClass;
-    /* 0x2dd8 */ UMineViz* m_mineViz;
-    /* 0x2de0 */ UClass* m_farmVizClass;
-    /* 0x2de8 */ UFarmViz* m_farmViz;
-    /* 0x2df0 */ UClass* m_resourceMarkingVizClass;
-    /* 0x2df8 */ UResourceMarkingViz* m_resourceMarkingViz;
-    /* 0x2e00 */ UClass* m_terraformVizClass;
-    /* 0x2e08 */ UTerraformViz* m_terraformViz;
-    /* 0x2e10 */ UClass* m_problemIndicatorClass;
-    /* 0x2e18 */ AProblemIndicator* m_problemIndicator;
-    /* 0x2e20 */ UNotificationSystem* m_notificationSystem;
-    /* 0x2e28 */ UColonyProblemsSummary* m_colonyProblemsSummary;
-    /* 0x2e30 */ UClass* m_elevatorSystemClass;
-    /* 0x2e38 */ AElevatorSystem* m_elevatorSystem;
-    /* 0x2e40 */ UClass* m_pipeSystemClass;
-    /* 0x2e48 */ APipeSystem* m_pipeSystem;
-    /* 0x2e50 */ UClass* m_doorwayRendererClass;
-    /* 0x2e58 */ AStructureDoorwayRenderer* m_doorwayRenderer;
-    /* 0x2e60 */ AResourceFling* m_resourceFlinger;
-    /* 0x2e68 */ UClass* m_roofSystemClass;
-    /* 0x2e70 */ ARoofSystem* m_roofSystem;
-    /* 0x2e78 */ UEventQueue* m_eventQueue;
-    /* 0x2e80 */ UClass* m_musicControllerClass;
-    /* 0x2e88 */ AArcoMusicController* m_musicController;
-    /* 0x2e90 */ TSet<FName> m_enabledUnlocks;
-    /* 0x2ee0 */ FUnlockTree m_unlockTree;
-    /* 0x2f30 */ bool m_allUnlocksCheat;
-    /* 0x2f38 */ FResearchState m_researchState;
-    /* 0x3000 */ TMap<int32_t, FColor> m_heatToUiColorLookup;
-    /* 0x3050 */ FString m_associatedSave;
-    /* 0x3060 */ FArcoScenario m_scenarioData;
-    /* 0x30e8 */ int32_t m_mealRationingCount;
-    /* 0x30ec */ int32_t m_drinkRationingCount;
-    /* 0x30f0 */ bool m_mealRationing_rawOnly;
-    /* 0x30f1 */ bool m_mealRationing_preparedOnly;
-    /* 0x30f2 */ bool m_assertSavesEnabled;
-    /* 0x3118 */ TArray<FName> m_derivedResearchableTech;
-    /* 0x3128 */ TArray<FMealDefTierGroup> m_mealDefsQualitySorted_descendingGroups;
-    /* 0x3138 */ TArray<FMealDefTierGroup> m_drinkDefsQualitySorted_descendingGroups;
-    /* 0x31c0 */ UClass* embarkBoatClass;
-    /* 0x31c8 */ AEmbarkBoat* embarkBoatInstance;
-    /* 0x31d0 */ int32_t m_totalActions;
-    /* 0x31d4 */ int32_t m_totalAssertSaves;
-    /* 0x31d8 */ int32_t m_maxAllowedSavesPerRun;
-    /* 0x31e0 */ TSet<FName> m_miscEventFlags;
-    /* 0x3260 */ TArray<FReportedDeath> m_recentDeaths;
-    /* 0x3270 */ TArray<FReportedDeath> m_deathsPendingGraves;
-    /* 0x3280 */ TArray<FMailStyleNotif> m_pendingMailNotifs;
-    /* 0x3290 */ FPathfinderCallCounts m_pathfinderCallCountsForFrame;
-    /* 0x33c0 */ TMap<FName, UClass*> m_workshipActorLookup;
-    /* 0x34b0 */ FAutoExportState m_autoExportState;
+    /* 0x2d68 */ UClass* m_tiledTerrainClass;
+    /* 0x2d70 */ UClass* m_tiledTerrainConfigMule;
+    /* 0x2d78 */ ATiledBlockTerrain* m_tiledTerrain;
+    /* 0x2d80 */ UTerrainGenerator* m_terrainGenerator;
+    /* 0x2d88 */ UClass* m_terrainGeneratorConfig;
+    /* 0x2d90 */ UOreDistributor* m_oreDistributor;
+    /* 0x2d98 */ UClass* m_oreDistributorConfig;
+    /* 0x2da0 */ UHeatSystem* m_heatSystem;
+    /* 0x2da8 */ UClass* m_heatSystemConfigMule;
+    /* 0x2db0 */ UClass* m_farmCropConfigMule;
+    /* 0x2db8 */ UExpectationSystem* m_expectationSystem;
+    /* 0x2dc0 */ UClass* m_expectationSystemConfigMule;
+    /* 0x2dc8 */ UAimSystem* m_aimSystem;
+    /* 0x2dd0 */ UNavySystem* m_navySystem;
+    /* 0x2dd8 */ UClass* m_mineVizClass;
+    /* 0x2de0 */ UMineViz* m_mineViz;
+    /* 0x2de8 */ UClass* m_farmVizClass;
+    /* 0x2df0 */ UFarmViz* m_farmViz;
+    /* 0x2df8 */ UClass* m_resourceMarkingVizClass;
+    /* 0x2e00 */ UResourceMarkingViz* m_resourceMarkingViz;
+    /* 0x2e08 */ UClass* m_terraformVizClass;
+    /* 0x2e10 */ UTerraformViz* m_terraformViz;
+    /* 0x2e18 */ UClass* m_problemIndicatorClass;
+    /* 0x2e20 */ AProblemIndicator* m_problemIndicator;
+    /* 0x2e28 */ UNotificationSystem* m_notificationSystem;
+    /* 0x2e30 */ UColonyProblemsSummary* m_colonyProblemsSummary;
+    /* 0x2e38 */ UClass* m_elevatorSystemClass;
+    /* 0x2e40 */ AElevatorSystem* m_elevatorSystem;
+    /* 0x2e48 */ UClass* m_pipeSystemClass;
+    /* 0x2e50 */ APipeSystem* m_pipeSystem;
+    /* 0x2e58 */ UClass* m_doorwayRendererClass;
+    /* 0x2e60 */ AStructureDoorwayRenderer* m_doorwayRenderer;
+    /* 0x2e68 */ AResourceFling* m_resourceFlinger;
+    /* 0x2e70 */ UClass* m_roofSystemClass;
+    /* 0x2e78 */ ARoofSystem* m_roofSystem;
+    /* 0x2e80 */ UEventQueue* m_eventQueue;
+    /* 0x2e88 */ UClass* m_musicControllerClass;
+    /* 0x2e90 */ AArcoMusicController* m_musicController;
+    /* 0x2e98 */ TSet<FName> m_enabledUnlocks;
+    /* 0x2ee8 */ FUnlockTree m_unlockTree;
+    /* 0x2f38 */ bool m_allUnlocksCheat;
+    /* 0x2f40 */ FResearchState m_researchState;
+    /* 0x3008 */ TMap<int32_t, FColor> m_heatToUiColorLookup;
+    /* 0x3058 */ FString m_associatedSave;
+    /* 0x3068 */ FArcoScenario m_scenarioData;
+    /* 0x30f0 */ int32_t m_mealRationingCount;
+    /* 0x30f4 */ int32_t m_drinkRationingCount;
+    /* 0x30f8 */ bool m_mealRationing_rawOnly;
+    /* 0x30f9 */ bool m_mealRationing_preparedOnly;
+    /* 0x30fa */ bool m_assertSavesEnabled;
+    /* 0x3120 */ TArray<FName> m_derivedResearchableTech;
+    /* 0x3130 */ TArray<FMealDefTierGroup> m_mealDefsQualitySorted_descendingGroups;
+    /* 0x3140 */ TArray<FMealDefTierGroup> m_drinkDefsQualitySorted_descendingGroups;
+    /* 0x31c8 */ UClass* embarkBoatClass;
+    /* 0x31d0 */ AEmbarkBoat* embarkBoatInstance;
+    /* 0x31d8 */ int32_t m_totalActions;
+    /* 0x31dc */ int32_t m_totalAssertSaves;
+    /* 0x31e0 */ int32_t m_maxAllowedSavesPerRun;
+    /* 0x31e8 */ TSet<FName> m_miscEventFlags;
+    /* 0x3268 */ TArray<FReportedDeath> m_recentDeaths;
+    /* 0x3278 */ TArray<FReportedDeath> m_deathsPendingGraves;
+    /* 0x3288 */ TArray<FMailStyleNotif> m_pendingMailNotifs;
+    /* 0x3298 */ FPathfinderCallCounts m_pathfinderCallCountsForFrame;
+    /* 0x33c8 */ TMap<FName, UClass*> m_workshipActorLookup;
+    /* 0x34b8 */ FAutoExportState m_autoExportState;
 
     bool CalcAffordabilityOfChoice(FEventChoiceV2 choice);
     bool CalcAffordabilityOfResult(FActionResult Result);
@@ -80522,8 +80522,8 @@ class UAssignableDockPosition : public USceneComponent {
 // Size: 0x28
 class IAttachableUpgradeReceiver : public UInterface {
 
-    void AttachUpgrade(Usteamengine* steamengine);
-    void UnattachUpgrade(Usteamengine* steamengine);
+    void AttachUpgrade(USteamEngine* SteamEngine);
+    void UnattachUpgrade(USteamEngine* SteamEngine);
 };
 
 // Size: 0x8
@@ -80545,6 +80545,26 @@ struct FAvailablePolicy {
 
 // Size: 0x428
 class UBasicResourceDockUi : public UArcoWidgetBase {
+};
+
+// Size: 0x2d0
+class UBathhouse : public UActorComponent {
+    /* 0x00d0 */ TArray<FBathingAgent> m_agentsBathing;
+    /* 0x00e0 */ int32_t m_baseQuality;
+    /* 0x00e4 */ int32_t m_maxAgentsBathing;
+    /* 0x00e8 */ FResourceCollection m_fluidUsedPerBath;
+    /* 0x0138 */ int32_t m_fluidStockpileCount;
+    /* 0x013c */ int32_t m_soapStockpileCount;
+    /* 0x0140 */ float m_bathTime;
+    /* 0x0144 */ float m_searchPenalty;
+    /* 0x0148 */ FStockpile m_supplyStockpile;
+    /* 0x01a0 */ int32_t m_soapChargesUsed;
+    /* 0x01a4 */ bool m_requestSoap;
+    /* 0x01a8 */ FName thoughtForVisitors;
+    /* 0x01b0 */ UWorkerViz* m_workerViz;
+    /* 0x01c8 */ FStockpile m_inputFluidStockpile;
+    /* 0x0238 */ FMulticastInlineDelegate m_stockChangeDelegate;
+    /* 0x0248 */ TSet<int32_t> m_inboundAgents;
 };
 
 // Size: 0xc0
@@ -80665,6 +80685,10 @@ class UChoppable : public UActorComponent {
 struct FCircularAverage {
 };
 
+// Size: 0xb8
+class UCivicOffice : public UActorComponent {
+};
+
 // Size: 0x90
 struct FClawsGiftChoice {
     /* 0x0000 */ FName titleKey;
@@ -80699,10 +80723,10 @@ struct FClothingState {
     /* 0x000c */ float durabilityTimePassed;
 };
 
-// Size: 0x210
+// Size: 0x260
 class UColonyProblemsSummary : public UObject {
-    /* 0x0118 */ TMap<int32_t, FString> m_pathingErrAgents;
-    /* 0x0168 */ TSet<int32_t> m_longPathAgents;
+    /* 0x0168 */ TMap<int32_t, FString> m_pathingErrAgents;
+    /* 0x01b8 */ TSet<int32_t> m_longPathAgents;
 };
 
 // Size: 0x1f0
@@ -80808,6 +80832,15 @@ struct FContractEmbarkHudState {
     /* 0x0010 */ int32_t totalDebt;
     /* 0x0018 */ FTaxTradeInformation tradeInfo;
     /* 0x00e8 */ FString colonyName;
+};
+
+// Size: 0x138
+class UCoordinationOffice : public UActorComponent {
+    /* 0x00e0 */ FWorkerAssignment m_workers;
+    /* 0x0100 */ UWorkerViz* m_workerViz;
+
+    bool AssignWorkerToSlot(int32_t Slot, APrototype_Agent* Agent);
+    bool FireSpecificWorker(APrototype_Agent* Agent);
 };
 
 // Size: 0xf8
@@ -81795,7 +81828,8 @@ enum class EProblemSummaryType {
     UNBURIED_WHISKERS = 8,
     NO_RESOURCES_NEAR_CAMP = 9,
     CAMP_OUTPUT_FULL = 10,
-    EProblemSummaryType_MAX = 11,
+    FREEZING_PATIENTS = 11,
+    EProblemSummaryType_MAX = 12,
 };
 
 enum class EQuestType {
@@ -82188,6 +82222,22 @@ struct FEateryView_UiData {
     /* 0x016c */ int32_t ExpectationStars;
 };
 
+// Size: 0x580
+class AElevator : public AGridActor {
+    /* 0x0408 */ UClass* m_platformActorClass;
+    /* 0x0410 */ AElevatorPlatform* m_platformActor;
+    /* 0x0418 */ TMap<FIntVector, UElevatorSegment*> m_ownedSegments;
+    /* 0x0470 */ float m_platformStopInterval;
+    /* 0x0474 */ float m_platformMaxSpeed;
+    /* 0x0478 */ float m_platformAccel;
+    /* 0x047c */ int32_t m_maxAgentsOnPlatform;
+    /* 0x04b8 */ TMap<int32_t, FElevatorLandingData> m_landings;
+    /* 0x0508 */ bool wakeupFlag;
+    /* 0x0510 */ TArray<int32_t> m_ascendingLandingHeights;
+    /* 0x0520 */ TArray<FWaitingElevatorAgent> m_agentsOnMovingPlatform;
+    /* 0x0530 */ FColor m_debugColor;
+};
+
 // Size: 0x8
 struct FElevatorLandingData {
     /* 0x0000 */ UElevatorSegment* ElevatorSegment;
@@ -82203,15 +82253,15 @@ class AElevatorPlatform : public AActor {
 // Size: 0x160
 class UElevatorSegment : public UActorComponent {
     /* 0x00e0 */ bool m_isLanding;
-    /* 0x0148 */ Aelevator* m_associatedShaft;
+    /* 0x0148 */ AElevator* m_associatedShaft;
     /* 0x0150 */ TArray<FWaitingElevatorAgent> m_waitingAgents;
 };
 
 // Size: 0x360
 class AElevatorSystem : public AActor {
     /* 0x02a8 */ UClass* m_shaftPrefab;
-    /* 0x02b0 */ TMap<UElevatorSegment*, Aelevator*> m_segmentToShaftLookup;
-    /* 0x0300 */ TArray<Aelevator*> m_elevatorShafts;
+    /* 0x02b0 */ TMap<UElevatorSegment*, AElevator*> m_segmentToShaftLookup;
+    /* 0x0300 */ TArray<AElevator*> m_elevatorShafts;
     /* 0x0310 */ TMap<FIntVector, UElevatorSegment*> m_segmentPositions;
 };
 
@@ -82726,6 +82776,14 @@ struct FGranaryViewState {
     /* 0x0000 */ int32_t m_rationingValue;
 };
 
+// Size: 0x230
+class UGrave : public UActorComponent {
+    /* 0x00b8 */ FMulticastInlineDelegate assignEvent;
+    /* 0x00c8 */ FMulticastInlineDelegate initEvent;
+    /* 0x00d8 */ bool hasAssignedDeath;
+    /* 0x00e0 */ FReportedDeath associatedDeath;
+};
+
 // Size: 0x408
 class AGridActor : public AActor {
     /* 0x02a8 */ FPrefabInfo PrefabInfo;
@@ -82796,11 +82854,12 @@ struct FGridActorDefinition_MasterSyncFormat : public FTableRowBase {
     /* 0x0120 */ TArray<FName> Variants;
 };
 
-// Size: 0x30
+// Size: 0x40
 struct FGridActorDoorwayRender {
     /* 0x0000 */ TArray<FDoorway> entrances;
     /* 0x0010 */ TArray<FDoorway> waterAdapters;
     /* 0x0020 */ TArray<FDoorway> steamAdapters;
+    /* 0x0030 */ TArray<FDoorway> aimEntrances;
 };
 
 // Size: 0x68
@@ -83291,6 +83350,17 @@ class UJobTicketDispenserBuilding : public UActorComponent {
     /* 0x0160 */ FString m_actionStringForFulfillingTicket;
 };
 
+// Size: 0x138
+class UJumpPad : public UActorComponent {
+    /* 0x00c8 */ int32_t maxHorizDistance;
+    /* 0x00cc */ int32_t maxZDistance;
+    /* 0x00d0 */ int32_t maxSteam;
+    /* 0x00d8 */ FMulticastInlineDelegate padLaunched;
+    /* 0x0104 */ int32_t storedSteam;
+    /* 0x0108 */ int32_t steamPerLaunch;
+    /* 0x0120 */ UInstancedStaticMeshComponent* m_previewLandingPositions;
+};
+
 // Size: 0x20
 struct FJumpPadUiState {
     /* 0x0000 */ FIntVector assignedLanding;
@@ -83396,6 +83466,12 @@ struct FLiveTimelineEvent {
     /* 0x0078 */ int32_t decisionMade;
     /* 0x007c */ int32_t liveEventId;
     /* 0x0080 */ float initialMinimumDelay;
+};
+
+// Size: 0x138
+class ULogisticsHub : public UActorComponent {
+    /* 0x00c8 */ FWorkerAssignment m_workers;
+    /* 0x00e8 */ UWorkerViz* m_workerViz;
 };
 
 // Size: 0x78
@@ -83834,6 +83910,12 @@ class UNotificationSystem : public UObject {
     void RemoveNotification(int32_t NotificationId);
 };
 
+// Size: 0x118
+class UOceanVoid : public UActorComponent {
+    /* 0x00ec */ float m_secondsPerWaterDrain;
+    /* 0x0100 */ FMulticastInlineDelegate drainStateChanged;
+};
+
 // Size: 0x1b8
 class UPackageDelivery : public UActorComponent {
     /* 0x00d8 */ FWorkerAssignment m_workers;
@@ -83929,15 +84011,14 @@ struct FPathfinderSearchParamArgs {
     /* 0x0014 */ int32_t minHeat;
 };
 
-// Size: 0x4e0
+// Size: 0x4d8
 class APawn_Play : public APawn {
     /* 0x0350 */ FPlayPawnCfg m_config;
-    /* 0x03d0 */ float adjustedMinCamDist;
-    /* 0x03d8 */ FVector m_desiredPanPos;
-    /* 0x03f0 */ float m_desiredZoomDist;
-    /* 0x03f8 */ FRotator m_desiredRot;
-    /* 0x0430 */ float m_focusLockCooldown;
-    /* 0x0438 */ FVector m_currentFocalPoint;
+    /* 0x03d0 */ FVector m_desiredPanPos;
+    /* 0x03e8 */ float m_desiredZoomDist;
+    /* 0x03f0 */ FRotator m_desiredRot;
+    /* 0x0428 */ float m_focusLockCooldown;
+    /* 0x0430 */ FVector m_currentFocalPoint;
 
     void DoApplyFocalLength(float FocalLength);
     void DoApplyVolumetricCloudsActive(bool cloudsActive);
@@ -83995,13 +84076,13 @@ struct FPipeSubNetwork {
     /* 0x0070 */ int32_t capacity;
 };
 
-// Size: 0x468
+// Size: 0x508
 class APipeSystem : public AActor {
-    /* 0x0398 */ TMap<int32_t, FPipeSubNetwork> m_subnetworks;
-    /* 0x03e8 */ UStaticMesh* m_fallbackMesh;
-    /* 0x03f0 */ FPipeLookup m_fluidPipeLookup;
-    /* 0x0400 */ FPipeLookup m_steamPipeLookup;
-    /* 0x0410 */ TMap<EPipeCategory, FPipeLookup> m_pipeLookups;
+    /* 0x0438 */ TMap<int32_t, FPipeSubNetwork> m_subnetworks;
+    /* 0x0488 */ UStaticMesh* m_fallbackMesh;
+    /* 0x0490 */ FPipeLookup m_fluidPipeLookup;
+    /* 0x04a0 */ FPipeLookup m_steamPipeLookup;
+    /* 0x04b0 */ TMap<EPipeCategory, FPipeLookup> m_pipeLookups;
 
     int32_t GetCapacityOfNetwork(int32_t network) const;
     int32_t GetFluidInNetwork(int32_t network) const;
@@ -84200,7 +84281,7 @@ class APlayerController_FootprintTool : public APlayerController {
     void SetFootprintActorVisible(bool Visible);
 };
 
-// Size: 0xc58
+// Size: 0xc60
 class APlayerController_Play : public APlayerController {
     /* 0x0738 */ UClass* m_playHudClass;
     /* 0x0740 */ UPlayHud* m_playHud;
@@ -84265,7 +84346,7 @@ class APlayerController_Play : public APlayerController {
     /* 0x0bb0 */ UDataTable* m_mainToolbarConfigured;
     /* 0x0c08 */ bool m_autosavesEnabled;
     /* 0x0c0c */ float m_timeUntilNextAutosave;
-    /* 0x0c50 */ float overrideZoomSpeed;
+    /* 0x0c58 */ float overrideZoomSpeed;
 
     void Arco_AchievementDebugger(bool Show);
     void Arco_CreateDebt(int32_t debtVal);
@@ -84508,7 +84589,7 @@ struct FPropCategory : public FTableRowBase {
     /* 0x0018 */ TArray<FName> debug_fakedisabled;
 };
 
-// Size: 0x590
+// Size: 0x598
 class APropTool : public AActor {
     /* 0x0398 */ UWidgetComponent* m_placementUiWidget;
     /* 0x03a0 */ UChildActorComponent* m_previewComponent;
@@ -85092,6 +85173,12 @@ struct FResourceStockpileSubcategory {
     /* 0x0058 */ int32_t totalCount;
 };
 
+// Size: 0x118
+class URestroom : public UActorComponent {
+    /* 0x00c8 */ TArray<FRestroomAgent> m_agentsControlled;
+    /* 0x00d8 */ int32_t uses;
+};
+
 // Size: 0x10
 struct FRestroomAgent {
 };
@@ -85139,6 +85226,14 @@ struct FScenarioEventCalendar {
 struct FScenarioQuestStart {
     /* 0x0000 */ FName Quest;
     /* 0x0008 */ float TimeDelay;
+};
+
+// Size: 0x170
+class USchool : public UActorComponent {
+    /* 0x00d0 */ UWorkerViz* m_workerViz;
+    /* 0x0140 */ FWorkerAssignment m_workers;
+    /* 0x0160 */ EAgentEducation m_educationTarget;
+    /* 0x0161 */ bool m_isTeachingGuild;
 };
 
 // Size: 0x448
@@ -85334,6 +85429,13 @@ struct FShipsForDay {
     /* 0x0000 */ TArray<FDockableShipData> m_shipsArrivingToday;
 };
 
+// Size: 0xf8
+class USignpost : public UActorComponent {
+    /* 0x00b8 */ FComponentReference desiredSignpostWidget;
+    /* 0x00e0 */ FString shownMessage;
+    /* 0x00f0 */ UWidgetComponent* linkedSignpostWidget;
+};
+
 // Size: 0x50
 struct FSimAction {
     /* 0x0000 */ ESimAction SimAction;
@@ -85388,6 +85490,16 @@ class ASimpleTerrainPropRenderer : public AActor {
     /* 0x02b0 */ FInstaMeshConfig m_meshCfg;
     /* 0x02c0 */ bool m_enabled;
     /* 0x02c8 */ FVector m_propScale;
+};
+
+// Size: 0x188
+class USlide : public UActorComponent {
+    /* 0x00c8 */ float slidePitch;
+    /* 0x00cc */ float VerticalOffset;
+    /* 0x00d0 */ float traversalCost;
+    /* 0x00d8 */ FSlideData m_data;
+    /* 0x0150 */ float m_maxSpeed;
+    /* 0x0154 */ float m_accel;
 };
 
 // Size: 0x58
@@ -85480,6 +85592,13 @@ struct FStairData {
     /* 0x00c0 */ TArray<FStairAgentState> pendingDescendingAgents;
 };
 
+// Size: 0x1f8
+class UStairs : public UActorComponent {
+    /* 0x00c8 */ USplineComponent* m_travelSpline;
+    /* 0x00d0 */ FStairData m_data;
+    /* 0x01a8 */ FStairConfig m_config;
+};
+
 // Size: 0xb0
 struct FStatEntity {
     /* 0x0000 */ FEntityStatsForDay liveStats;
@@ -85523,6 +85642,15 @@ struct FStats_resourcesInfo {
     /* 0x0000 */ TMap<EStatResourceFlowType, FResourceCollection> m_resourceFlows;
 };
 
+// Size: 0x140
+class USteamEngine : public UActorComponent {
+    /* 0x00c0 */ float m_powerRemaining;
+    /* 0x00c8 */ float m_powerDrawPerSecond;
+    /* 0x00d0 */ FMulticastInlineDelegate animateDelegate;
+
+    int32_t GetNConnections() const;
+};
+
 // Size: 0x58
 struct FStockpile {
     /* 0x0008 */ TMap<FName, FResourceStockpileSlot> Slots;
@@ -85561,14 +85689,15 @@ struct FStringRow : public FTableRowBase {
     /* 0x0008 */ FString String;
 };
 
-// Size: 0x568
+// Size: 0x618
 class AStructureDoorwayRenderer : public AActor {
     /* 0x02a8 */ UInstancedStaticMeshComponent* m_doorwayRenderer;
     /* 0x0358 */ UInstancedStaticMeshComponent* m_waterAdapterRenderer;
     /* 0x0408 */ UInstancedStaticMeshComponent* m_steamAdapterRenderer;
-    /* 0x04b8 */ TMap<AGridActor*, FGridActorDoorwayRender> m_renders;
-    /* 0x0558 */ float m_entrancVisOffset;
-    /* 0x055c */ float m_entranceVisOffset_Z;
+    /* 0x04b8 */ UInstancedStaticMeshComponent* m_aimAdapterRenderer;
+    /* 0x0568 */ TMap<AGridActor*, FGridActorDoorwayRender> m_renders;
+    /* 0x0608 */ float m_entrancVisOffset;
+    /* 0x060c */ float m_entranceVisOffset_Z;
 };
 
 // Size: 0x30
@@ -85846,6 +85975,17 @@ struct FTerraformBuildingUIState {
     /* 0x0130 */ float remainingOvertime;
 };
 
+// Size: 0x1e0
+class UTerraformCamp : public UActorComponent {
+    /* 0x00e0 */ FWorkerAssignment m_workers;
+    /* 0x0100 */ UStockpileRender* m_stockpileVisual;
+    /* 0x0108 */ float m_pathfindingMaxSearchCost;
+    /* 0x010c */ int32_t m_pathfindingMaxCellDistance;
+    /* 0x0110 */ UWorkerViz* m_workerViz;
+    /* 0x0118 */ FStockpile m_storageStockpile;
+    /* 0x0198 */ UServiceRange* m_serviceRange;
+};
+
 // Size: 0xc8
 struct FTerraformCampUIState {
     /* 0x0000 */ FWorkerAssignmentData workerData;
@@ -86068,6 +86208,10 @@ struct FTooltipTag : public FTableRowBase {
 class ATowerGrid : public AActor {
 };
 
+// Size: 0xb8
+class UTownHall : public UActorComponent {
+};
+
 // Size: 0x40
 struct FTrackedWorkplace {
     /* 0x0000 */ FIntVector Location;
@@ -86195,9 +86339,10 @@ struct FTriageBedState_UI {
     /* 0x0008 */ FString agentName;
     /* 0x0018 */ int32_t agentId;
     /* 0x001c */ FName portraitKey;
+    /* 0x0024 */ float deathProgress;
 };
 
-// Size: 0x1e8
+// Size: 0x1f0
 class UTriageBuilding : public UActorComponent {
     /* 0x00d8 */ FWorkerAssignment m_workers;
     /* 0x00f8 */ TArray<FTriageResourceSlot> m_activeConsumables;
@@ -86233,6 +86378,7 @@ struct FTriageView_UiData {
     /* 0x0080 */ FWorkerAssignmentData workerData;
     /* 0x0090 */ FStockpileLinkerUiStruct linkerInfo;
     /* 0x00d0 */ bool disabledByPlayer;
+    /* 0x00d1 */ bool untenableCold;
 };
 
 // Size: 0x448
@@ -86651,6 +86797,17 @@ class AWandererSystem : public AActor {
     void calcPrime();
 };
 
+// Size: 0x138
+class UWaterFountain : public UActorComponent {
+    /* 0x00c8 */ TArray<FDrinkingAgent> m_agentsDrinking;
+    /* 0x00d8 */ FMulticastInlineDelegate m_waterChangeDelegate;
+
+    int32_t GetGoalWeight(FName Context, int32_t contextIntParam);
+    bool PassControlToEnterable(APrototype_Agent* Agent, FEntryContext Context);
+    bool ReleaseControlToAgent(APrototype_Agent* Agent);
+    void SimTick(float deltaTime);
+};
+
 // Size: 0x30
 struct FWeatherPreset : public FTableRowBase {
     /* 0x0008 */ UPrimaryDataAsset* udsWeatherPreset;
@@ -86804,8 +86961,8 @@ struct FWorldMeta {
     /* 0x00a0 */ TSet<AGridActor*> houses;
     /* 0x00f0 */ TSet<UHouse*> houses_components;
     /* 0x0140 */ TSet<AGridActor*> docks;
-    /* 0x0190 */ TSet<AGridActor*> stairs;
-    /* 0x01e0 */ TSet<Ustairs*> stairs_components;
+    /* 0x0190 */ TSet<AGridActor*> Stairs;
+    /* 0x01e0 */ TSet<UStairs*> stairs_components;
     /* 0x0230 */ TSet<AGridActor*> jumpPads;
     /* 0x0280 */ TSet<AGridActor*> ladders;
     /* 0x02d0 */ TSet<ULadder*> ladders_components;
@@ -86831,8 +86988,8 @@ struct FWorldMeta {
     /* 0x0878 */ TSet<UChoppable*> harvestableComponents;
     /* 0x08c8 */ TSet<UChoppable*> mineHarvestables;
     /* 0x0918 */ TSet<UChoppable*> choppables_all_ticking;
-    /* 0x0968 */ TSet<Ugrave*> graves;
-    /* 0x09b8 */ TSet<Ugrave*> unclaimedGraves;
+    /* 0x0968 */ TSet<UGrave*> graves;
+    /* 0x09b8 */ TSet<UGrave*> unclaimedGraves;
     /* 0x0a08 */ TSet<AGridActor*> harvestCamps;
     /* 0x0a58 */ TSet<AGridActor*> m_restrooms;
     /* 0x0aa8 */ TSet<AGridActor*> m_farmBuildings;
@@ -86855,12 +87012,12 @@ struct FWorldMeta {
     /* 0x0ff8 */ TSet<AGridActor*> m_offices;
     /* 0x1048 */ TSet<AGridActor*> m_elevatorSegments;
     /* 0x1098 */ TSet<AGridActor*> m_infiniteResourceSourceOrDrains;
-    /* 0x10e8 */ TSet<Ucoordinationoffice*> m_coordinationOffices;
+    /* 0x10e8 */ TSet<UCoordinationOffice*> m_coordinationOffices;
     /* 0x1138 */ TSet<UDecorativeSlot*> m_decorativeSlots;
     /* 0x1188 */ TSet<AGridActor*> m_decoratives;
-    /* 0x11d8 */ TSet<Uoceanvoid*> m_oceanVoids;
+    /* 0x11d8 */ TSet<UOceanVoid*> m_oceanVoids;
     /* 0x1228 */ TSet<UTerraformBuilding*> m_stoneDumps;
-    /* 0x1278 */ TSet<Uterraformcamp*> m_terraformCamps;
+    /* 0x1278 */ TSet<UTerraformCamp*> m_terraformCamps;
     /* 0x12c8 */ TSet<UTerraformCell*> m_terraformCells;
     /* 0x1318 */ TSet<UTaxOffice*> m_taxOffices;
     /* 0x1368 */ TSet<UDecorative*> m_tickableDecorativeComponents;
@@ -86912,159 +87069,6 @@ class AWorldTime : public AActor {
 struct FWorldTimeStamp {
     /* 0x0000 */ int32_t day;
     /* 0x0004 */ float timeOfDay;
-};
-
-// Size: 0x2d0
-class Ubathhouse : public UActorComponent {
-    /* 0x00d0 */ TArray<FBathingAgent> m_agentsBathing;
-    /* 0x00e0 */ int32_t m_baseQuality;
-    /* 0x00e4 */ int32_t m_maxAgentsBathing;
-    /* 0x00e8 */ FResourceCollection m_fluidUsedPerBath;
-    /* 0x0138 */ int32_t m_fluidStockpileCount;
-    /* 0x013c */ int32_t m_soapStockpileCount;
-    /* 0x0140 */ float m_bathTime;
-    /* 0x0144 */ float m_searchPenalty;
-    /* 0x0148 */ FStockpile m_supplyStockpile;
-    /* 0x01a0 */ int32_t m_soapChargesUsed;
-    /* 0x01a4 */ bool m_requestSoap;
-    /* 0x01a8 */ FName thoughtForVisitors;
-    /* 0x01b0 */ UWorkerViz* m_workerViz;
-    /* 0x01c8 */ FStockpile m_inputFluidStockpile;
-    /* 0x0238 */ FMulticastInlineDelegate m_stockChangeDelegate;
-    /* 0x0248 */ TSet<int32_t> m_inboundAgents;
-};
-
-// Size: 0xb8
-class UcivicOffice : public UActorComponent {
-};
-
-// Size: 0x138
-class Ucoordinationoffice : public UActorComponent {
-    /* 0x00e0 */ FWorkerAssignment m_workers;
-    /* 0x0100 */ UWorkerViz* m_workerViz;
-
-    bool AssignWorkerToSlot(int32_t Slot, APrototype_Agent* Agent);
-    bool FireSpecificWorker(APrototype_Agent* Agent);
-};
-
-// Size: 0x580
-class Aelevator : public AGridActor {
-    /* 0x0408 */ UClass* m_platformActorClass;
-    /* 0x0410 */ AElevatorPlatform* m_platformActor;
-    /* 0x0418 */ TMap<FIntVector, UElevatorSegment*> m_ownedSegments;
-    /* 0x0470 */ float m_platformStopInterval;
-    /* 0x0474 */ float m_platformMaxSpeed;
-    /* 0x0478 */ float m_platformAccel;
-    /* 0x047c */ int32_t m_maxAgentsOnPlatform;
-    /* 0x04b8 */ TMap<int32_t, FElevatorLandingData> m_landings;
-    /* 0x0508 */ bool wakeupFlag;
-    /* 0x0510 */ TArray<int32_t> m_ascendingLandingHeights;
-    /* 0x0520 */ TArray<FWaitingElevatorAgent> m_agentsOnMovingPlatform;
-    /* 0x0530 */ FColor m_debugColor;
-};
-
-// Size: 0x230
-class Ugrave : public UActorComponent {
-    /* 0x00b8 */ FMulticastInlineDelegate assignEvent;
-    /* 0x00c8 */ FMulticastInlineDelegate initEvent;
-    /* 0x00d8 */ bool hasAssignedDeath;
-    /* 0x00e0 */ FReportedDeath associatedDeath;
-};
-
-// Size: 0x138
-class Ujumppad : public UActorComponent {
-    /* 0x00c8 */ int32_t maxHorizDistance;
-    /* 0x00cc */ int32_t maxZDistance;
-    /* 0x00d0 */ int32_t maxSteam;
-    /* 0x00d8 */ FMulticastInlineDelegate padLaunched;
-    /* 0x0104 */ int32_t storedSteam;
-    /* 0x0108 */ int32_t steamPerLaunch;
-    /* 0x0120 */ UInstancedStaticMeshComponent* m_previewLandingPositions;
-};
-
-// Size: 0x138
-class Ulogisticshub : public UActorComponent {
-    /* 0x00c8 */ FWorkerAssignment m_workers;
-    /* 0x00e8 */ UWorkerViz* m_workerViz;
-};
-
-// Size: 0x118
-class Uoceanvoid : public UActorComponent {
-    /* 0x00ec */ float m_secondsPerWaterDrain;
-    /* 0x0100 */ FMulticastInlineDelegate drainStateChanged;
-};
-
-// Size: 0x118
-class Urestroom : public UActorComponent {
-    /* 0x00c8 */ TArray<FRestroomAgent> m_agentsControlled;
-    /* 0x00d8 */ int32_t uses;
-};
-
-// Size: 0x170
-class Uschool : public UActorComponent {
-    /* 0x00d0 */ UWorkerViz* m_workerViz;
-    /* 0x0140 */ FWorkerAssignment m_workers;
-    /* 0x0160 */ EAgentEducation m_educationTarget;
-    /* 0x0161 */ bool m_isTeachingGuild;
-};
-
-// Size: 0xf8
-class Usignpost : public UActorComponent {
-    /* 0x00b8 */ FComponentReference desiredSignpostWidget;
-    /* 0x00e0 */ FString shownMessage;
-    /* 0x00f0 */ UWidgetComponent* linkedSignpostWidget;
-};
-
-// Size: 0x188
-class Uslide : public UActorComponent {
-    /* 0x00c8 */ float slidePitch;
-    /* 0x00cc */ float VerticalOffset;
-    /* 0x00d0 */ float traversalCost;
-    /* 0x00d8 */ FSlideData m_data;
-    /* 0x0150 */ float m_maxSpeed;
-    /* 0x0154 */ float m_accel;
-};
-
-// Size: 0x1f8
-class Ustairs : public UActorComponent {
-    /* 0x00c8 */ USplineComponent* m_travelSpline;
-    /* 0x00d0 */ FStairData m_data;
-    /* 0x01a8 */ FStairConfig m_config;
-};
-
-// Size: 0x140
-class Usteamengine : public UActorComponent {
-    /* 0x00c0 */ float m_powerRemaining;
-    /* 0x00c8 */ float m_powerDrawPerSecond;
-    /* 0x00d0 */ FMulticastInlineDelegate animateDelegate;
-
-    int32_t GetNConnections() const;
-};
-
-// Size: 0x1e0
-class Uterraformcamp : public UActorComponent {
-    /* 0x00e0 */ FWorkerAssignment m_workers;
-    /* 0x0100 */ UStockpileRender* m_stockpileVisual;
-    /* 0x0108 */ float m_pathfindingMaxSearchCost;
-    /* 0x010c */ int32_t m_pathfindingMaxCellDistance;
-    /* 0x0110 */ UWorkerViz* m_workerViz;
-    /* 0x0118 */ FStockpile m_storageStockpile;
-    /* 0x0198 */ UServiceRange* m_serviceRange;
-};
-
-// Size: 0xb8
-class Utownhall : public UActorComponent {
-};
-
-// Size: 0x138
-class Uwaterfountain : public UActorComponent {
-    /* 0x00c8 */ TArray<FDrinkingAgent> m_agentsDrinking;
-    /* 0x00d8 */ FMulticastInlineDelegate m_waterChangeDelegate;
-
-    int32_t GetGoalWeight(FName Context, int32_t contextIntParam);
-    bool PassControlToEnterable(APrototype_Agent* Agent, FEntryContext Context);
-    bool ReleaseControlToAgent(APrototype_Agent* Agent);
-    void SimTick(float deltaTime);
 };
 
 enum class EPropertyBindingAccessType {
@@ -98004,7 +98008,7 @@ class UInputIconManager : public UObject {
     /* 0x0028 */ FInputIconState State;
     /* 0x00d8 */ FMulticastInlineDelegate notifyChangeInIconSet;
 
-    UTexture2D* GetInputIcon(EInputIconButton button);
+    UTexture2D* GetInputIcon(EInputIconButton Button);
     bool SetPreferedPlatformIconSet(EPlatformCategory desiredIconSet);
 };
 
@@ -98464,7 +98468,11 @@ class UModAPI : public UObject {
     bool HasDataTable(UObject* WorldContext, FName datatableName);
     TArray<FName> ListDataTables(UObject* WorldContext);
     TArray<FName> ListLanguageIds(UObject* WorldContext);
+    UObject* LoadCdoOfClass(UObject* WorldContext, UClass* targetClass);
+    UObject* LoadComponentTemplateOfClass(UObject* WorldContext, UClass* targetClass, FString ComponentName);
+    UObject* LoadDefaultSubojectOfClass(UObject* WorldContext, UClass* targetClass, FString ComponentName);
     void LogMessage(UObject* WorldContext, FString Msg, bool doPrependDate);
+    void MarkObjectTemplateForRetainedEditing(UObject* WorldContext, UObject* ObjectTemplate);
     FString ReadDataTableValue(UObject* WorldContext, FName datatableName, FName rowId, FName ColumnName);
     FString ReadModOptionValue(UObject* WorldContext, FString optionId, FString fallbackValue);
     FString ReadModTextFile(UObject* WorldContext, FString modName, FString Filename);
@@ -98742,7 +98750,7 @@ class UNaviUi : public UUserWidget {
     static UWidget* FindFirstParentWithTooltip(UWidget* searchRoot, int32_t maxDepth);
     static void ForceFocusCombobox(UComboBoxString* ComboBox);
     static void ForceOpenVirtualKeyboard(UEditableText* EditableText);
-    static void ForcePressButton(Ubutton* buttonWidget);
+    static void ForcePressButton(UButton* buttonWidget);
     bool ForceTooltipShown(UNaviUi* searchRoot, bool showTooltip, int32_t searchDepth);
     FString GetId() const;
     static ENaviUiIntent GetIntentFromMovement(FVector2D diff);
@@ -100116,6 +100124,7 @@ class UStaticStageConfig : public UBlueprintFunctionLibrary {
     static void OpenSupportEmail(const UObject* WorldContext);
     static void OpenTwitterPage(const UObject* WorldContext);
     static void OpenWhiskerwoodStorePage(const UObject* WorldContext);
+    static void OpenWhiskerwoodWikiPage(const UObject* WorldContext);
     static void OpenWorkshop(const UObject* WorldContext);
     static FName OverWorld();
     static void PlayFreeRoam(const UObject* WorldContext);
@@ -100648,11 +100657,13 @@ struct FTiledBlockTerrainCover {
     /* 0x0070 */ UStaticMesh* Circle;
 };
 
-// Size: 0x2c0
+// Size: 0x2e8
 class ATiledBlockTerrainHighlight : public AActor {
-    /* 0x02a8 */ int32_t CurrentMeshIndex;
-    /* 0x02ac */ bool bVisibility;
+    /* 0x02a8 */ bool bVisibility;
     /* 0x02b0 */ TArray<UStaticMeshComponent*> Meshes;
+    /* 0x02c0 */ TArray<UStaticMesh*> TrackedMeshes;
+    /* 0x02d0 */ TArray<uint8_t> TrackedGrowth;
+    /* 0x02e0 */ bool bHasContent;
 };
 
 // Size: 0x10
@@ -100751,7 +100762,7 @@ class UTiledTerrainConfigMule : public UObject {
     /* 0x0028 */ FTiledTerrainConfig config;
 };
 
-// Size: 0x878
+// Size: 0x880
 struct FTiledTerrainData {
     /* 0x0000 */ FIntVector Origin;
     /* 0x000c */ FIntVector Extent;
@@ -102227,6 +102238,30 @@ class UBorderSlot : public UPanelSlot {
 class UBrushBinding : public UPropertyBinding {
 
     FSlateBrush GetValue() const;
+};
+
+// Size: 0x5a0
+class UButton : public UContentWidget {
+    /* 0x0180 */ FButtonStyle WidgetStyle;
+    /* 0x0510 */ FLinearColor ColorAndOpacity;
+    /* 0x0520 */ FLinearColor BackgroundColor;
+    /* 0x0530 */ uint8_t ClickMethod;
+    /* 0x0531 */ uint8_t TouchMethod;
+    /* 0x0532 */ uint8_t PressMethod;
+    /* 0x0533 */ bool IsFocusable;
+    /* 0x0538 */ FMulticastInlineDelegate OnClicked;
+    /* 0x0548 */ FMulticastInlineDelegate OnPressed;
+    /* 0x0558 */ FMulticastInlineDelegate OnReleased;
+    /* 0x0568 */ FMulticastInlineDelegate OnHovered;
+    /* 0x0578 */ FMulticastInlineDelegate OnUnhovered;
+
+    bool IsPressed() const;
+    void SetBackgroundColor(FLinearColor InBackgroundColor);
+    void SetClickMethod(uint8_t InClickMethod);
+    void SetColorAndOpacity(FLinearColor InColorAndOpacity);
+    void SetPressMethod(uint8_t InPressMethod);
+    void SetStyle(const FButtonStyle& InStyle);
+    void SetTouchMethod(uint8_t InTouchMethod);
 };
 
 // Size: 0x60
@@ -104580,30 +104615,6 @@ class UWrapBoxSlot : public UPanelSlot {
     void SetNewLine(bool InForceNewLine);
     void SetPadding(FMargin InPadding);
     void SetVerticalAlignment(uint8_t InVerticalAlignment);
-};
-
-// Size: 0x5a0
-class Ubutton : public UContentWidget {
-    /* 0x0180 */ FButtonStyle WidgetStyle;
-    /* 0x0510 */ FLinearColor ColorAndOpacity;
-    /* 0x0520 */ FLinearColor BackgroundColor;
-    /* 0x0530 */ uint8_t ClickMethod;
-    /* 0x0531 */ uint8_t TouchMethod;
-    /* 0x0532 */ uint8_t PressMethod;
-    /* 0x0533 */ bool IsFocusable;
-    /* 0x0538 */ FMulticastInlineDelegate OnClicked;
-    /* 0x0548 */ FMulticastInlineDelegate OnPressed;
-    /* 0x0558 */ FMulticastInlineDelegate OnReleased;
-    /* 0x0568 */ FMulticastInlineDelegate OnHovered;
-    /* 0x0578 */ FMulticastInlineDelegate OnUnhovered;
-
-    bool IsPressed() const;
-    void SetBackgroundColor(FLinearColor InBackgroundColor);
-    void SetClickMethod(uint8_t InClickMethod);
-    void SetColorAndOpacity(FLinearColor InColorAndOpacity);
-    void SetPressMethod(uint8_t InPressMethod);
-    void SetStyle(const FButtonStyle& InStyle);
-    void SetTouchMethod(uint8_t InTouchMethod);
 };
 
 // Size: 0x38
