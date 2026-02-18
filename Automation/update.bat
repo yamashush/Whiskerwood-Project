@@ -5,7 +5,7 @@ set "INSTALL_DIR=C:\Program Files (x86)\Steam\steamapps\common\Whiskerwood"
 set "GAME_ID=2489330"
 set "PROCESS_NAME=Whiskerwood-Win64-Shipping"
 set "JMAP_DUMPER_PATH=jmap_dumper.exe"
-set "WAIT_TIME=15"
+set "WAIT_TIME=20"
 set "VERSION_FILE_PATH=%INSTALL_DIR%\Whiskerwood\Content\Movies\Version.txt"
 set "UE4SS_PROXY_NAME=dwmapi.dll"
 set "UE4SS_PROXY_PATH=%INSTALL_DIR%\Whiskerwood\Binaries\Win64\%UE4SS_PROXY_NAME%"
@@ -171,6 +171,20 @@ if errorlevel 1 (
     )
 )
 echo.
+
+echo Running TableGraph.exe for DataTable dumps...
+echo Command: DTDumps/TableGraph.exe --pak-dir "%INSTALL_DIR%\Whiskerwood\Content\Paks" --mappings "%OUTPUT_USMAP_PATH%" --version GAME_UE5_6 --include-loc --export "DataTableIndex.json"
+DTDumps\TableGraph.exe --pak-dir "%INSTALL_DIR%\Whiskerwood\Content\Paks" --mappings "%OUTPUT_USMAP_PATH%" --version GAME_UE5_6 --include-loc --export "DataTableIndex.json"
+if errorlevel 1 (
+    echo WARNING: TableGraph.exe failed or returned an error
+) else (
+    echo SUCCESS: TableGraph.exe completed successfully
+    if exist "DataTableIndex.json" (
+        echo File created: "DataTableIndex.json"
+    ) else (
+        echo ERROR: DataTableIndex.json file not found after export!
+    )
+)
 
 echo Closing game process (PID: %PID%)...
 taskkill /pid %PID% /f >nul 2>&1
