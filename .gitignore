@@ -16,6 +16,7 @@
 *.pdb
 *.exe
 !Automation/jmap_dumper.exe
+!Automation/DTDumps/*.exe
 
 # Builds
 Build/*
