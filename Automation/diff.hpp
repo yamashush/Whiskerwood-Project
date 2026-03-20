@@ -33215,8 +33215,8 @@ class UKismetMathLibrary : public UBlueprintFunctionLibrary {
     static float PerlinNoise1D(const float Value);
     static bool PointsAreCoplanar(const TArray<FVector>& points, float Tolerance);
     static FVector ProjectPointOnToPlane(FVector Point, FVector PlaneBase, FVector PlaneNormal);
+    static FVector ProjectVectorOnToPlane(FVector V, FVector PlaneNormal);
     static FVector ProjectVectorOnToVector(FVector V, FVector Target);
-    static FVector ProjectVectorOntoPlane(FVector V, FVector PlaneNormal);
     static float Quat_AngularDistance(const FQuat& A, const FQuat& B);
     static void Quat_EnforceShortestArcWith(FQuat& A, const FQuat& B);
     static FVector Quat_Euler(const FQuat& Q);
@@ -33252,8 +33252,8 @@ class UKismetMathLibrary : public UBlueprintFunctionLibrary {
     static FQuat QuaternionSpringInterp(FQuat Current, FQuat Target, FQuaternionSpringState& SpringState, float Stiffness, float CriticalDampingFactor, float deltaTime, float Mass, float TargetVelocityAmount, bool bInitializeFromTarget);
     static FRotator REase(FRotator A, FRotator B, float Alpha, bool bShortestPath, uint8_t EasingFunc, float BlendExp, int32_t Steps);
     static FLinearColor RGBLinearToHSV(FLinearColor RGB);
+    static void RGBToHSV(FLinearColor InColor, float& H, float& S, float& V, float& A);
     static void RGBToHSV_Vector(FLinearColor RGB, FLinearColor& HSV);
-    static void RGBtoHSV(FLinearColor InColor, float& H, float& S, float& V, float& A);
     static FRotator RInterpTo(FRotator Current, FRotator Target, float deltaTime, float InterpSpeed);
     static FRotator RInterpTo_Constant(FRotator Current, FRotator Target, float deltaTime, float InterpSpeed);
     static FRotator RLerp(FRotator A, FRotator B, float Alpha, bool bShortestPath);
@@ -56786,7 +56786,7 @@ class UContextObjectStore : public UObject {
 
 // Size: 0x20
 struct FDeviceButtonState {
-    /* 0x0000 */ FKey button;
+    /* 0x0000 */ FKey Button;
     /* 0x0018 */ bool bPressed;
     /* 0x0019 */ bool bDown;
     /* 0x001a */ bool bReleased;
@@ -80557,8 +80557,8 @@ class UAssignableDockPosition : public USceneComponent {
 // Size: 0x28
 class IAttachableUpgradeReceiver : public UInterface {
 
-    void AttachUpgrade(Usteamengine* steamengine);
-    void UnattachUpgrade(Usteamengine* steamengine);
+    void AttachUpgrade(USteamEngine* SteamEngine);
+    void UnattachUpgrade(USteamEngine* SteamEngine);
 };
 
 // Size: 0x8
@@ -80580,6 +80580,26 @@ struct FAvailablePolicy {
 
 // Size: 0x428
 class UBasicResourceDockUi : public UArcoWidgetBase {
+};
+
+// Size: 0x2d0
+class UBathhouse : public UActorComponent {
+    /* 0x00d0 */ TArray<FBathingAgent> m_agentsBathing;
+    /* 0x00e0 */ int32_t m_baseQuality;
+    /* 0x00e4 */ int32_t m_maxAgentsBathing;
+    /* 0x00e8 */ FResourceCollection m_fluidUsedPerBath;
+    /* 0x0138 */ int32_t m_fluidStockpileCount;
+    /* 0x013c */ int32_t m_soapStockpileCount;
+    /* 0x0140 */ float m_bathTime;
+    /* 0x0144 */ float m_searchPenalty;
+    /* 0x0148 */ FStockpile m_supplyStockpile;
+    /* 0x01a0 */ int32_t m_soapChargesUsed;
+    /* 0x01a4 */ bool m_requestSoap;
+    /* 0x01a8 */ FName thoughtForVisitors;
+    /* 0x01b0 */ UWorkerViz* m_workerViz;
+    /* 0x01c8 */ FStockpile m_inputFluidStockpile;
+    /* 0x0238 */ FMulticastInlineDelegate m_stockChangeDelegate;
+    /* 0x0248 */ TSet<int32_t> m_inboundAgents;
 };
 
 // Size: 0xc0
@@ -80699,6 +80719,10 @@ class UChoppable : public UActorComponent {
 
 // Size: 0x18
 struct FCircularAverage {
+};
+
+// Size: 0xb8
+class UCivicOffice : public UActorComponent {
 };
 
 // Size: 0x90
@@ -80845,6 +80869,15 @@ struct FContractEmbarkHudState {
     /* 0x0010 */ int32_t totalDebt;
     /* 0x0018 */ FTaxTradeInformation tradeInfo;
     /* 0x00e8 */ FString colonyName;
+};
+
+// Size: 0x138
+class UCoordinationOffice : public UActorComponent {
+    /* 0x00e0 */ FWorkerAssignment m_workers;
+    /* 0x0100 */ UWorkerViz* m_workerViz;
+
+    bool AssignWorkerToSlot(int32_t Slot, APrototype_Agent* Agent);
+    bool FireSpecificWorker(APrototype_Agent* Agent);
 };
 
 // Size: 0xf8
@@ -82073,8 +82106,9 @@ enum class ESimAction {
     DOCK_BUILD_RAFT = 145,
     OCEAN_DUMP_ASSIGN_RESOURCES = 146,
     ATTEMPT_ROUTE_FIX = 147,
-    FINAL_ACTION = 148,
-    ESimAction_MAX = 149,
+    TOGGLE_MISC_FLAG = 148,
+    FINAL_ACTION = 149,
+    ESimAction_MAX = 150,
 };
 
 enum class ESimPauseReason {
@@ -82084,7 +82118,8 @@ enum class ESimPauseReason {
     PAUSE_EOD = 3,
     PAUSE_BLOCKING_EVENT = 4,
     PAUSE_RADIAL_MENU = 5,
-    PAUSE_MAX = 6,
+    PAUSE_DOCK_MOVE = 6,
+    PAUSE_MAX = 7,
 };
 
 enum class EStatResourceFlowType {
@@ -82229,11 +82264,12 @@ enum class EWorkerSlotType {
     EWorkerSlotType_MAX = 2,
 };
 
-// Size: 0x18
+// Size: 0x20
 struct FEateryChairState_UI {
     /* 0x0000 */ float eatProgressPercent;
     /* 0x0004 */ bool agentPresent;
     /* 0x0008 */ FString agentName;
+    /* 0x0018 */ FName currentResource;
 };
 
 // Size: 0x50
@@ -82243,7 +82279,7 @@ struct FEateryFoodInfo_UI {
     /* 0x0008 */ FAgentModifier relatedModifier;
 };
 
-// Size: 0x170
+// Size: 0x178
 struct FEateryView_UiData {
     /* 0x0000 */ TMap<FName, FResourceStockpileSubcategory> m_resourcesByCategory;
     /* 0x0050 */ FStockpile Stockpile;
@@ -82256,6 +82292,24 @@ struct FEateryView_UiData {
     /* 0x0128 */ FStockpileLinkerUiStruct linkerInfo;
     /* 0x0168 */ bool disabledByPlayer;
     /* 0x016c */ int32_t ExpectationStars;
+    /* 0x0170 */ bool preventWarehouseEating;
+    /* 0x0174 */ int32_t nQueueing;
+};
+
+// Size: 0x580
+class AElevator : public AGridActor {
+    /* 0x0408 */ UClass* m_platformActorClass;
+    /* 0x0410 */ AElevatorPlatform* m_platformActor;
+    /* 0x0418 */ TMap<FIntVector, UElevatorSegment*> m_ownedSegments;
+    /* 0x0470 */ float m_platformStopInterval;
+    /* 0x0474 */ float m_platformMaxSpeed;
+    /* 0x0478 */ float m_platformAccel;
+    /* 0x047c */ int32_t m_maxAgentsOnPlatform;
+    /* 0x04b8 */ TMap<int32_t, FElevatorLandingData> m_landings;
+    /* 0x0508 */ bool wakeupFlag;
+    /* 0x0510 */ TArray<int32_t> m_ascendingLandingHeights;
+    /* 0x0520 */ TArray<FWaitingElevatorAgent> m_agentsOnMovingPlatform;
+    /* 0x0530 */ FColor m_debugColor;
 };
 
 // Size: 0x8
@@ -82273,15 +82327,15 @@ class AElevatorPlatform : public AActor {
 // Size: 0x160
 class UElevatorSegment : public UActorComponent {
     /* 0x00e0 */ bool m_isLanding;
-    /* 0x0148 */ Aelevator* m_associatedShaft;
+    /* 0x0148 */ AElevator* m_associatedShaft;
     /* 0x0150 */ TArray<FWaitingElevatorAgent> m_waitingAgents;
 };
 
 // Size: 0x360
 class AElevatorSystem : public AActor {
     /* 0x02a8 */ UClass* m_shaftPrefab;
-    /* 0x02b0 */ TMap<UElevatorSegment*, Aelevator*> m_segmentToShaftLookup;
-    /* 0x0300 */ TArray<Aelevator*> m_elevatorShafts;
+    /* 0x02b0 */ TMap<UElevatorSegment*, AElevator*> m_segmentToShaftLookup;
+    /* 0x0300 */ TArray<AElevator*> m_elevatorShafts;
     /* 0x0310 */ TMap<FIntVector, UElevatorSegment*> m_segmentPositions;
 };
 
@@ -82441,7 +82495,7 @@ struct FExtractorHudData {
     /* 0x00a1 */ bool useWhitelist;
 };
 
-// Size: 0x388
+// Size: 0x390
 class UFactionDock : public UActorComponent {
     /* 0x00c0 */ TMap<EShipType, UClass*> m_boatVisualsTable;
     /* 0x0160 */ float m_boatArrivalAnimTime;
@@ -82462,7 +82516,7 @@ class UFactionDock : public UActorComponent {
     void SpatialHudAction(FHudAction HudAction);
 };
 
-// Size: 0x220
+// Size: 0x230
 struct FFactionDock_UiState {
     /* 0x0000 */ bool shipPresent;
     /* 0x0008 */ FDockableShipData dockedShipState;
@@ -82478,6 +82532,10 @@ struct FFactionDock_UiState {
     /* 0x0204 */ int32_t maxStanding;
     /* 0x0208 */ bool dangerOfLosing;
     /* 0x0210 */ FString standingString;
+    /* 0x0220 */ bool moveBlocked_busy;
+    /* 0x0224 */ int32_t moveCost_approval;
+    /* 0x0228 */ bool canAffordMove;
+    /* 0x0229 */ bool showMoveOption;
 };
 
 // Size: 0x14
@@ -82667,26 +82725,28 @@ struct FFoodDationing_UiData {
     /* 0x0008 */ int32_t estimatedConsumption;
 };
 
-// Size: 0x388
+// Size: 0x3b0
 class UFoodDistributor : public UActorComponent {
     /* 0x00d0 */ FWorkerAssignment m_workers;
     /* 0x00f0 */ TArray<FVendingAgent> m_agentsEating;
-    /* 0x0100 */ TArray<FMealDef> m_sortedMealDefs;
-    /* 0x0110 */ int32_t m_maxAgentsEating;
-    /* 0x0114 */ float m_eatLength;
-    /* 0x0118 */ int32_t m_baseQuality;
-    /* 0x011c */ int32_t m_foodCount;
-    /* 0x0120 */ int32_t m_teaCount;
-    /* 0x0128 */ FStockpile m_stockpile;
-    /* 0x0180 */ int32_t m_capacity;
-    /* 0x0188 */ TMap<FName, int32_t> m_requestsPerCategory;
-    /* 0x01d8 */ FName thoughtForVisitors;
-    /* 0x01e0 */ TSet<FName> m_supportedResourceCategories;
-    /* 0x0230 */ TSet<FName> m_supportedResourceSubCategories;
-    /* 0x0298 */ UStockpileRender* m_stockpileVisual;
-    /* 0x02a0 */ TSet<int32_t> m_inboundAgents_food;
-    /* 0x02f0 */ TSet<int32_t> m_inboundAgents_drink;
-    /* 0x0348 */ UWorkerViz* m_workerViz;
+    /* 0x0100 */ TArray<FVendingQueueAgent> m_agentsQueueing;
+    /* 0x0110 */ TArray<FMealDef> m_sortedMealDefs;
+    /* 0x0120 */ int32_t m_maxAgentsEating;
+    /* 0x0124 */ float m_eatLength;
+    /* 0x0138 */ int32_t m_baseQuality;
+    /* 0x013c */ int32_t m_foodCount;
+    /* 0x0140 */ int32_t m_teaCount;
+    /* 0x0148 */ FStockpile m_stockpile;
+    /* 0x01a0 */ int32_t m_capacity;
+    /* 0x01a8 */ TMap<FName, int32_t> m_requestsPerCategory;
+    /* 0x01f8 */ FName thoughtForVisitors;
+    /* 0x0200 */ TSet<FName> m_supportedResourceCategories;
+    /* 0x0250 */ TSet<FName> m_supportedResourceSubCategories;
+    /* 0x02b8 */ UStockpileRender* m_stockpileVisual;
+    /* 0x02c0 */ TSet<int32_t> m_inboundAgents_food;
+    /* 0x0310 */ int32_t m_inboundEstimatedFoodConsumption;
+    /* 0x0318 */ TSet<int32_t> m_inboundAgents_drink;
+    /* 0x0370 */ UWorkerViz* m_workerViz;
 };
 
 // Size: 0x10
@@ -82734,6 +82794,7 @@ class UFueledHeater : public UActorComponent {
     /* 0x00e0 */ int32_t m_maxFuelCapacity;
     /* 0x00e4 */ float m_fuelBurnTime;
     /* 0x00e8 */ int32_t m_basePollutionPerSecond;
+    /* 0x00ec */ int32_t m_nFuelPerCycle;
     /* 0x00f0 */ FString m_radius_flavortext;
     /* 0x0100 */ FIntVector m_entranceInternalPos;
     /* 0x0138 */ FStockpile m_supplyStockpile;
@@ -82769,6 +82830,7 @@ struct FFueledHeaterHudInfo {
     /* 0x0034 */ FName fuelType;
     /* 0x003c */ int32_t pollution;
     /* 0x0040 */ EFuelSource fuelTypeEnum;
+    /* 0x0044 */ int32_t fuelPerCycle;
 };
 
 // Size: 0x18
@@ -82794,16 +82856,24 @@ struct FGiftPreviewRow {
     /* 0x0010 */ float chance;
 };
 
-// Size: 0x278
+// Size: 0x288
 class UGranaryResourceBuilding : public UResourceBuilding {
-    /* 0x0260 */ TArray<FVendingAgent> m_agentsControlled;
-    /* 0x0270 */ int32_t m_maxAgentsEating;
-    /* 0x0274 */ float m_eatLength;
+    /* 0x0270 */ TArray<FVendingAgent> m_agentsControlled;
+    /* 0x0280 */ int32_t m_maxAgentsEating;
+    /* 0x0284 */ float m_eatLength;
 };
 
 // Size: 0x4
 struct FGranaryViewState {
     /* 0x0000 */ int32_t m_rationingValue;
+};
+
+// Size: 0x230
+class UGrave : public UActorComponent {
+    /* 0x00b8 */ FMulticastInlineDelegate assignEvent;
+    /* 0x00c8 */ FMulticastInlineDelegate initEvent;
+    /* 0x00d8 */ bool hasAssignedDeath;
+    /* 0x00e0 */ FReportedDeath associatedDeath;
 };
 
 // Size: 0x408
@@ -83378,6 +83448,18 @@ class UJobTicketDispenserBuilding : public UActorComponent {
     /* 0x0160 */ FString m_actionStringForFulfillingTicket;
 };
 
+// Size: 0x138
+class UJumpPad : public UActorComponent {
+    /* 0x00c8 */ int32_t maxHorizDistance;
+    /* 0x00cc */ int32_t maxZDistance;
+    /* 0x00d0 */ int32_t maxZDistance_down;
+    /* 0x00d4 */ int32_t maxSteam;
+    /* 0x00d8 */ FMulticastInlineDelegate padLaunched;
+    /* 0x0104 */ int32_t storedSteam;
+    /* 0x0108 */ int32_t steamPerLaunch;
+    /* 0x0120 */ UInstancedStaticMeshComponent* m_previewLandingPositions;
+};
+
 // Size: 0x2c
 struct FJumpPadUiState {
     /* 0x0000 */ FIntVector assignedLanding;
@@ -83486,6 +83568,12 @@ struct FLiveTimelineEvent {
     /* 0x0078 */ int32_t decisionMade;
     /* 0x007c */ int32_t liveEventId;
     /* 0x0080 */ float initialMinimumDelay;
+};
+
+// Size: 0x138
+class ULogisticsHub : public UActorComponent {
+    /* 0x00c8 */ FWorkerAssignment m_workers;
+    /* 0x00e8 */ UWorkerViz* m_workerViz;
 };
 
 // Size: 0x78
@@ -83922,6 +84010,12 @@ struct FNotificationHudState {
 class UNotificationSystem : public UObject {
 
     void RemoveNotification(int32_t NotificationId);
+};
+
+// Size: 0x118
+class UOceanVoid : public UActorComponent {
+    /* 0x00ec */ float m_secondsPerWaterDrain;
+    /* 0x0100 */ FMulticastInlineDelegate drainStateChanged;
 };
 
 // Size: 0x1b8
@@ -84619,10 +84713,10 @@ struct FPropCategory : public FTableRowBase {
     /* 0x0018 */ TArray<FName> debug_fakedisabled;
 };
 
-// Size: 0x598
+// Size: 0x5a0
 class APropTool : public AActor {
-    /* 0x0398 */ UWidgetComponent* m_placementUiWidget;
-    /* 0x03a0 */ UChildActorComponent* m_previewComponent;
+    /* 0x03a0 */ UWidgetComponent* m_placementUiWidget;
+    /* 0x03a8 */ UChildActorComponent* m_previewComponent;
 
     void Event_BuildingPlaced(const TArray<FIntVector>& footprintFloorPositions);
     void HandleSimSpeedChanged(int32_t simSpeed);
@@ -84852,6 +84946,23 @@ class URadiusVisualizer : public USceneComponent {
     /* 0x0248 */ UStaticMeshComponent* m_radiusCube;
 };
 
+// Size: 0x270
+class URaftDock : public UActorComponent {
+    /* 0x00d0 */ FIntVector m_dockCellRelative;
+    /* 0x00dc */ FDir m_dockCellShipFacingRelative;
+    /* 0x00e0 */ int32_t m_nMaxRaftsBuilt;
+    /* 0x00e8 */ FResourceCollection m_raftCost;
+    /* 0x0138 */ float m_minFAddWhenExitingDestinationStation;
+    /* 0x0158 */ float m_maxDepartureTimer;
+    /* 0x015c */ float m_minTimeBetweenSpawns;
+    /* 0x0164 */ float m_timePerQueueLoad;
+    /* 0x0178 */ UClass* m_raftPrefabActor;
+    /* 0x0180 */ TSet<FIntVector> m_passengerWaitingCells_relative;
+    /* 0x01f0 */ FMulticastInlineDelegate raftEvent;
+
+    int32_t GetAgentsWaiting() const;
+};
+
 // Size: 0xb0
 struct FRaftDockHudData {
     /* 0x0000 */ FRaftRoute routeInfo;
@@ -84886,7 +84997,7 @@ class URaftRouteAssignments : public UObject {
     /* 0x0120 */ TSet<ARaftShuttle*> allShuttles;
 };
 
-// Size: 0x3f8
+// Size: 0x400
 class ARaftShuttle : public AActor {
     /* 0x02a8 */ float fakeBogeyRadius;
     /* 0x02c8 */ float m_maxSpeed;
@@ -84895,12 +85006,14 @@ class ARaftShuttle : public AActor {
     /* 0x02d4 */ float m_minDockingSpeed;
     /* 0x02d8 */ float m_rotSpeed;
     /* 0x02dc */ float m_currentSpeed;
-    /* 0x02ec */ int32_t m_maxAgents;
-    /* 0x03d0 */ float m_bubbleStrength;
-    /* 0x03d4 */ float m_bubblePassingStrength;
-    /* 0x03d8 */ float m_bubbleRadius;
-    /* 0x03dc */ float m_springStrength;
-    /* 0x03e0 */ float m_springDamping;
+    /* 0x02e0 */ bool m_policyBoosted;
+    /* 0x02e4 */ float m_policyBoostMultiplier;
+    /* 0x02f4 */ int32_t m_maxAgents;
+    /* 0x03d8 */ float m_bubbleStrength;
+    /* 0x03dc */ float m_bubblePassingStrength;
+    /* 0x03e0 */ float m_bubbleRadius;
+    /* 0x03e4 */ float m_springStrength;
+    /* 0x03e8 */ float m_springDamping;
 
     void StartDespawnAnim();
 };
@@ -85081,30 +85194,32 @@ struct FResidentData_UiData {
     /* 0x0008 */ APrototype_Agent* agentRef;
 };
 
-// Size: 0x260
+// Size: 0x270
 class UResourceBuilding : public UActorComponent {
-    /* 0x00d8 */ bool m_agentsCanPull;
-    /* 0x00d9 */ bool m_agentsCanPush;
-    /* 0x00da */ bool m_aimCanPull;
-    /* 0x00db */ bool m_aimCanPush;
-    /* 0x00dc */ bool m_canExternalMachinesPull;
-    /* 0x00dd */ bool m_whiteListReceiving;
-    /* 0x00de */ bool m_useSharedCapacity;
-    /* 0x00e0 */ TSet<FName> m_whitelist;
-    /* 0x0130 */ bool m_allowPlayerAccess;
-    /* 0x0131 */ bool m_allowResourceSpawnOrRefund;
-    /* 0x0132 */ bool m_forceEmpty;
-    /* 0x0133 */ bool m_actAsLogisticsSupply;
-    /* 0x0134 */ bool m_allowDropoff;
-    /* 0x0135 */ bool m_assignedDropoffOnly;
-    /* 0x0138 */ TSet<FName> m_supportedResourceCategories;
-    /* 0x0188 */ int32_t m_defaultStorageCapacity;
-    /* 0x018c */ int32_t m_scienceCapacity;
-    /* 0x0190 */ FIntVector m_entranceInternalCell;
-    /* 0x01a0 */ FStockpile m_stockpile;
-    /* 0x01f8 */ UWorkerViz* m_workerViz;
-    /* 0x0200 */ FWorkerAssignment m_workers;
-    /* 0x0220 */ UStockpileRender* m_stockpileVisual;
+    /* 0x00d8 */ int32_t m_baseFibIndex;
+    /* 0x00dc */ bool m_isMovable;
+    /* 0x00e4 */ bool m_agentsCanPull;
+    /* 0x00e5 */ bool m_agentsCanPush;
+    /* 0x00e6 */ bool m_aimCanPull;
+    /* 0x00e7 */ bool m_aimCanPush;
+    /* 0x00e8 */ bool m_canExternalMachinesPull;
+    /* 0x00e9 */ bool m_whiteListReceiving;
+    /* 0x00ea */ bool m_useSharedCapacity;
+    /* 0x00f0 */ TSet<FName> m_whitelist;
+    /* 0x0140 */ bool m_allowPlayerAccess;
+    /* 0x0141 */ bool m_allowResourceSpawnOrRefund;
+    /* 0x0142 */ bool m_forceEmpty;
+    /* 0x0143 */ bool m_actAsLogisticsSupply;
+    /* 0x0144 */ bool m_allowDropoff;
+    /* 0x0145 */ bool m_assignedDropoffOnly;
+    /* 0x0148 */ TSet<FName> m_supportedResourceCategories;
+    /* 0x0198 */ int32_t m_defaultStorageCapacity;
+    /* 0x019c */ int32_t m_scienceCapacity;
+    /* 0x01a0 */ FIntVector m_entranceInternalCell;
+    /* 0x01b0 */ FStockpile m_stockpile;
+    /* 0x0208 */ UWorkerViz* m_workerViz;
+    /* 0x0210 */ FWorkerAssignment m_workers;
+    /* 0x0230 */ UStockpileRender* m_stockpileVisual;
 
     FResourceBuilding_HudState CalcHudStruct() const;
     FResourceBuilding_LogisticsTab CalcLogisticsTab() const;
@@ -85112,13 +85227,12 @@ class UResourceBuilding : public UActorComponent {
     FResourceCollection GetLogisticsDeficitsAsCollection() const;
 };
 
-// Size: 0x70
+// Size: 0xc
 struct FResourceBuilding_HudState {
-    /* 0x0000 */ bool allowReserve;
-    /* 0x0008 */ TMap<FName, FResourceStockpileSubcategory> m_resourcesByCategory;
-    /* 0x0058 */ int32_t m_scienceCapacity;
-    /* 0x005c */ int32_t m_totalScience;
-    /* 0x0060 */ FWorkerAssignmentData workerInfo;
+    /* 0x0000 */ bool moveBlocked_busy;
+    /* 0x0004 */ int32_t moveCost_approval;
+    /* 0x0008 */ bool canAffordMove;
+    /* 0x0009 */ bool showMoveOption;
 };
 
 // Size: 0xc0
@@ -85270,6 +85384,12 @@ struct FResourceStockpileSubcategory {
     /* 0x0058 */ int32_t totalCount;
 };
 
+// Size: 0x118
+class URestroom : public UActorComponent {
+    /* 0x00c8 */ TArray<FRestroomAgent> m_agentsControlled;
+    /* 0x00d8 */ int32_t uses;
+};
+
 // Size: 0x10
 struct FRestroomAgent {
 };
@@ -85317,6 +85437,14 @@ struct FScenarioEventCalendar {
 struct FScenarioQuestStart {
     /* 0x0000 */ FName Quest;
     /* 0x0008 */ float TimeDelay;
+};
+
+// Size: 0x170
+class USchool : public UActorComponent {
+    /* 0x00d0 */ UWorkerViz* m_workerViz;
+    /* 0x0140 */ FWorkerAssignment m_workers;
+    /* 0x0160 */ EAgentEducation m_educationTarget;
+    /* 0x0161 */ bool m_isTeachingGuild;
 };
 
 // Size: 0x448
@@ -85513,6 +85641,13 @@ struct FShipsForDay {
     /* 0x0000 */ TArray<FDockableShipData> m_shipsArrivingToday;
 };
 
+// Size: 0xf8
+class USignpost : public UActorComponent {
+    /* 0x00b8 */ FComponentReference desiredSignpostWidget;
+    /* 0x00e0 */ FString shownMessage;
+    /* 0x00f0 */ UWidgetComponent* linkedSignpostWidget;
+};
+
 // Size: 0x50
 struct FSimAction {
     /* 0x0000 */ ESimAction SimAction;
@@ -85567,6 +85702,16 @@ class ASimpleTerrainPropRenderer : public AActor {
     /* 0x02b0 */ FInstaMeshConfig m_meshCfg;
     /* 0x02c0 */ bool m_enabled;
     /* 0x02c8 */ FVector m_propScale;
+};
+
+// Size: 0x188
+class USlide : public UActorComponent {
+    /* 0x00c8 */ float slidePitch;
+    /* 0x00cc */ float VerticalOffset;
+    /* 0x00d0 */ float traversalCost;
+    /* 0x00d8 */ FSlideData m_data;
+    /* 0x0150 */ float m_maxSpeed;
+    /* 0x0154 */ float m_accel;
 };
 
 // Size: 0x58
@@ -85665,6 +85810,13 @@ struct FStairData {
     /* 0x00c0 */ TArray<FStairAgentState> pendingDescendingAgents;
 };
 
+// Size: 0x1f8
+class UStairs : public UActorComponent {
+    /* 0x00c8 */ USplineComponent* m_travelSpline;
+    /* 0x00d0 */ FStairData m_data;
+    /* 0x01a8 */ FStairConfig m_config;
+};
+
 // Size: 0xb0
 struct FStatEntity {
     /* 0x0000 */ FEntityStatsForDay liveStats;
@@ -85706,6 +85858,15 @@ struct FStats_debtInfo {
 // Size: 0x50
 struct FStats_resourcesInfo {
     /* 0x0000 */ TMap<EStatResourceFlowType, FResourceCollection> m_resourceFlows;
+};
+
+// Size: 0x140
+class USteamEngine : public UActorComponent {
+    /* 0x00c0 */ float m_powerRemaining;
+    /* 0x00c8 */ float m_powerDrawPerSecond;
+    /* 0x00d0 */ FMulticastInlineDelegate animateDelegate;
+
+    int32_t GetNConnections() const;
 };
 
 // Size: 0x58
@@ -86033,6 +86194,17 @@ struct FTerraformBuildingUIState {
     /* 0x0130 */ float remainingOvertime;
 };
 
+// Size: 0x1e0
+class UTerraformCamp : public UActorComponent {
+    /* 0x00e0 */ FWorkerAssignment m_workers;
+    /* 0x0100 */ UStockpileRender* m_stockpileVisual;
+    /* 0x0108 */ float m_pathfindingMaxSearchCost;
+    /* 0x010c */ int32_t m_pathfindingMaxCellDistance;
+    /* 0x0110 */ UWorkerViz* m_workerViz;
+    /* 0x0118 */ FStockpile m_storageStockpile;
+    /* 0x0198 */ UServiceRange* m_serviceRange;
+};
+
 // Size: 0xc8
 struct FTerraformCampUIState {
     /* 0x0000 */ FWorkerAssignmentData workerData;
@@ -86253,6 +86425,10 @@ struct FTooltipTag : public FTableRowBase {
 
 // Size: 0x330
 class ATowerGrid : public AActor {
+};
+
+// Size: 0xb8
+class UTownHall : public UActorComponent {
 };
 
 // Size: 0x40
@@ -86814,7 +86990,7 @@ struct FValveUiState {
     /* 0x001c */ FName fluidResource;
 };
 
-// Size: 0x20
+// Size: 0x28
 struct FVendingAgent {
     /* 0x0000 */ APrototype_Agent* Agent;
     /* 0x0008 */ float timeLeftToEat;
@@ -86822,6 +86998,13 @@ struct FVendingAgent {
     /* 0x0010 */ FName currentMeal;
     /* 0x0018 */ int32_t additionalMeals;
     /* 0x001c */ bool hasHadPolicyExtraMeal;
+    /* 0x0020 */ int32_t seatIdx;
+};
+
+// Size: 0x10
+struct FVendingQueueAgent {
+    /* 0x0000 */ APrototype_Agent* Agent;
+    /* 0x0008 */ bool isFood;
 };
 
 // Size: 0x448
@@ -86864,6 +87047,17 @@ class AWandererSystem : public AActor {
     /* 0x0308 */ int32_t m_numUpdateGroups;
 
     void calcPrime();
+};
+
+// Size: 0x138
+class UWaterFountain : public UActorComponent {
+    /* 0x00c8 */ TArray<FDrinkingAgent> m_agentsDrinking;
+    /* 0x00d8 */ FMulticastInlineDelegate m_waterChangeDelegate;
+
+    int32_t GetGoalWeight(FName Context, int32_t contextIntParam);
+    bool PassControlToEnterable(APrototype_Agent* Agent, FEntryContext Context);
+    bool ReleaseControlToAgent(APrototype_Agent* Agent);
+    void SimTick(float deltaTime);
 };
 
 // Size: 0x30
@@ -87019,8 +87213,8 @@ struct FWorldMeta {
     /* 0x00a0 */ TSet<AGridActor*> houses;
     /* 0x00f0 */ TSet<UHouse*> houses_components;
     /* 0x0140 */ TSet<AGridActor*> docks;
-    /* 0x0190 */ TSet<AGridActor*> stairs;
-    /* 0x01e0 */ TSet<Ustairs*> stairs_components;
+    /* 0x0190 */ TSet<AGridActor*> Stairs;
+    /* 0x01e0 */ TSet<UStairs*> stairs_components;
     /* 0x0230 */ TSet<AGridActor*> jumpPads;
     /* 0x0280 */ TSet<AGridActor*> ladders;
     /* 0x02d0 */ TSet<ULadder*> ladders_components;
@@ -87046,8 +87240,8 @@ struct FWorldMeta {
     /* 0x0878 */ TSet<UChoppable*> harvestableComponents;
     /* 0x08c8 */ TSet<UChoppable*> mineHarvestables;
     /* 0x0918 */ TSet<UChoppable*> choppables_all_ticking;
-    /* 0x0968 */ TSet<Ugrave*> graves;
-    /* 0x09b8 */ TSet<Ugrave*> unclaimedGraves;
+    /* 0x0968 */ TSet<UGrave*> graves;
+    /* 0x09b8 */ TSet<UGrave*> unclaimedGraves;
     /* 0x0a08 */ TSet<AGridActor*> harvestCamps;
     /* 0x0a58 */ TSet<AGridActor*> m_restrooms;
     /* 0x0aa8 */ TSet<AGridActor*> m_farmBuildings;
@@ -87070,16 +87264,16 @@ struct FWorldMeta {
     /* 0x0ff8 */ TSet<AGridActor*> m_offices;
     /* 0x1048 */ TSet<AGridActor*> m_elevatorSegments;
     /* 0x1098 */ TSet<AGridActor*> m_infiniteResourceSourceOrDrains;
-    /* 0x10e8 */ TSet<Ucoordinationoffice*> m_coordinationOffices;
+    /* 0x10e8 */ TSet<UCoordinationOffice*> m_coordinationOffices;
     /* 0x1138 */ TSet<UDecorativeSlot*> m_decorativeSlots;
     /* 0x1188 */ TSet<AGridActor*> m_decoratives;
-    /* 0x11d8 */ TSet<Uoceanvoid*> m_oceanVoids;
+    /* 0x11d8 */ TSet<UOceanVoid*> m_oceanVoids;
     /* 0x1228 */ TSet<UTerraformBuilding*> m_stoneDumps;
-    /* 0x1278 */ TSet<Uterraformcamp*> m_terraformCamps;
+    /* 0x1278 */ TSet<UTerraformCamp*> m_terraformCamps;
     /* 0x12c8 */ TSet<UTerraformCell*> m_terraformCells;
     /* 0x1318 */ TSet<UTaxOffice*> m_taxOffices;
     /* 0x1368 */ TSet<UAimExtractor*> m_aimExtractors;
-    /* 0x13b8 */ TSet<UraftDock*> m_raftDocks;
+    /* 0x13b8 */ TSet<URaftDock*> m_raftDocks;
     /* 0x1408 */ TSet<UPhysicalOceanDump*> m_physicalOceanDumps;
     /* 0x1458 */ TSet<UDecorative*> m_tickableDecorativeComponents;
     /* 0x14a8 */ TSet<AGridActor*> m_fluidValves;
@@ -87130,177 +87324,6 @@ class AWorldTime : public AActor {
 struct FWorldTimeStamp {
     /* 0x0000 */ int32_t day;
     /* 0x0004 */ float timeOfDay;
-};
-
-// Size: 0x2d0
-class Ubathhouse : public UActorComponent {
-    /* 0x00d0 */ TArray<FBathingAgent> m_agentsBathing;
-    /* 0x00e0 */ int32_t m_baseQuality;
-    /* 0x00e4 */ int32_t m_maxAgentsBathing;
-    /* 0x00e8 */ FResourceCollection m_fluidUsedPerBath;
-    /* 0x0138 */ int32_t m_fluidStockpileCount;
-    /* 0x013c */ int32_t m_soapStockpileCount;
-    /* 0x0140 */ float m_bathTime;
-    /* 0x0144 */ float m_searchPenalty;
-    /* 0x0148 */ FStockpile m_supplyStockpile;
-    /* 0x01a0 */ int32_t m_soapChargesUsed;
-    /* 0x01a4 */ bool m_requestSoap;
-    /* 0x01a8 */ FName thoughtForVisitors;
-    /* 0x01b0 */ UWorkerViz* m_workerViz;
-    /* 0x01c8 */ FStockpile m_inputFluidStockpile;
-    /* 0x0238 */ FMulticastInlineDelegate m_stockChangeDelegate;
-    /* 0x0248 */ TSet<int32_t> m_inboundAgents;
-};
-
-// Size: 0xb8
-class UcivicOffice : public UActorComponent {
-};
-
-// Size: 0x138
-class Ucoordinationoffice : public UActorComponent {
-    /* 0x00e0 */ FWorkerAssignment m_workers;
-    /* 0x0100 */ UWorkerViz* m_workerViz;
-
-    bool AssignWorkerToSlot(int32_t Slot, APrototype_Agent* Agent);
-    bool FireSpecificWorker(APrototype_Agent* Agent);
-};
-
-// Size: 0x580
-class Aelevator : public AGridActor {
-    /* 0x0408 */ UClass* m_platformActorClass;
-    /* 0x0410 */ AElevatorPlatform* m_platformActor;
-    /* 0x0418 */ TMap<FIntVector, UElevatorSegment*> m_ownedSegments;
-    /* 0x0470 */ float m_platformStopInterval;
-    /* 0x0474 */ float m_platformMaxSpeed;
-    /* 0x0478 */ float m_platformAccel;
-    /* 0x047c */ int32_t m_maxAgentsOnPlatform;
-    /* 0x04b8 */ TMap<int32_t, FElevatorLandingData> m_landings;
-    /* 0x0508 */ bool wakeupFlag;
-    /* 0x0510 */ TArray<int32_t> m_ascendingLandingHeights;
-    /* 0x0520 */ TArray<FWaitingElevatorAgent> m_agentsOnMovingPlatform;
-    /* 0x0530 */ FColor m_debugColor;
-};
-
-// Size: 0x230
-class Ugrave : public UActorComponent {
-    /* 0x00b8 */ FMulticastInlineDelegate assignEvent;
-    /* 0x00c8 */ FMulticastInlineDelegate initEvent;
-    /* 0x00d8 */ bool hasAssignedDeath;
-    /* 0x00e0 */ FReportedDeath associatedDeath;
-};
-
-// Size: 0x138
-class Ujumppad : public UActorComponent {
-    /* 0x00c8 */ int32_t maxHorizDistance;
-    /* 0x00cc */ int32_t maxZDistance;
-    /* 0x00d0 */ int32_t maxZDistance_down;
-    /* 0x00d4 */ int32_t maxSteam;
-    /* 0x00d8 */ FMulticastInlineDelegate padLaunched;
-    /* 0x0104 */ int32_t storedSteam;
-    /* 0x0108 */ int32_t steamPerLaunch;
-    /* 0x0120 */ UInstancedStaticMeshComponent* m_previewLandingPositions;
-};
-
-// Size: 0x138
-class Ulogisticshub : public UActorComponent {
-    /* 0x00c8 */ FWorkerAssignment m_workers;
-    /* 0x00e8 */ UWorkerViz* m_workerViz;
-};
-
-// Size: 0x118
-class Uoceanvoid : public UActorComponent {
-    /* 0x00ec */ float m_secondsPerWaterDrain;
-    /* 0x0100 */ FMulticastInlineDelegate drainStateChanged;
-};
-
-// Size: 0x270
-class UraftDock : public UActorComponent {
-    /* 0x00d0 */ FIntVector m_dockCellRelative;
-    /* 0x00dc */ FDir m_dockCellShipFacingRelative;
-    /* 0x00e0 */ int32_t m_nMaxRaftsBuilt;
-    /* 0x00e8 */ FResourceCollection m_raftCost;
-    /* 0x0138 */ float m_minFAddWhenExitingDestinationStation;
-    /* 0x0158 */ float m_maxDepartureTimer;
-    /* 0x015c */ float m_minTimeBetweenSpawns;
-    /* 0x0164 */ float m_timePerQueueLoad;
-    /* 0x0178 */ UClass* m_raftPrefabActor;
-    /* 0x0180 */ TSet<FIntVector> m_passengerWaitingCells_relative;
-    /* 0x01f0 */ FMulticastInlineDelegate raftEvent;
-
-    int32_t GetAgentsWaiting() const;
-};
-
-// Size: 0x118
-class Urestroom : public UActorComponent {
-    /* 0x00c8 */ TArray<FRestroomAgent> m_agentsControlled;
-    /* 0x00d8 */ int32_t uses;
-};
-
-// Size: 0x170
-class Uschool : public UActorComponent {
-    /* 0x00d0 */ UWorkerViz* m_workerViz;
-    /* 0x0140 */ FWorkerAssignment m_workers;
-    /* 0x0160 */ EAgentEducation m_educationTarget;
-    /* 0x0161 */ bool m_isTeachingGuild;
-};
-
-// Size: 0xf8
-class Usignpost : public UActorComponent {
-    /* 0x00b8 */ FComponentReference desiredSignpostWidget;
-    /* 0x00e0 */ FString shownMessage;
-    /* 0x00f0 */ UWidgetComponent* linkedSignpostWidget;
-};
-
-// Size: 0x188
-class Uslide : public UActorComponent {
-    /* 0x00c8 */ float slidePitch;
-    /* 0x00cc */ float VerticalOffset;
-    /* 0x00d0 */ float traversalCost;
-    /* 0x00d8 */ FSlideData m_data;
-    /* 0x0150 */ float m_maxSpeed;
-    /* 0x0154 */ float m_accel;
-};
-
-// Size: 0x1f8
-class Ustairs : public UActorComponent {
-    /* 0x00c8 */ USplineComponent* m_travelSpline;
-    /* 0x00d0 */ FStairData m_data;
-    /* 0x01a8 */ FStairConfig m_config;
-};
-
-// Size: 0x140
-class Usteamengine : public UActorComponent {
-    /* 0x00c0 */ float m_powerRemaining;
-    /* 0x00c8 */ float m_powerDrawPerSecond;
-    /* 0x00d0 */ FMulticastInlineDelegate animateDelegate;
-
-    int32_t GetNConnections() const;
-};
-
-// Size: 0x1e0
-class Uterraformcamp : public UActorComponent {
-    /* 0x00e0 */ FWorkerAssignment m_workers;
-    /* 0x0100 */ UStockpileRender* m_stockpileVisual;
-    /* 0x0108 */ float m_pathfindingMaxSearchCost;
-    /* 0x010c */ int32_t m_pathfindingMaxCellDistance;
-    /* 0x0110 */ UWorkerViz* m_workerViz;
-    /* 0x0118 */ FStockpile m_storageStockpile;
-    /* 0x0198 */ UServiceRange* m_serviceRange;
-};
-
-// Size: 0xb8
-class Utownhall : public UActorComponent {
-};
-
-// Size: 0x138
-class Uwaterfountain : public UActorComponent {
-    /* 0x00c8 */ TArray<FDrinkingAgent> m_agentsDrinking;
-    /* 0x00d8 */ FMulticastInlineDelegate m_waterChangeDelegate;
-
-    int32_t GetGoalWeight(FName Context, int32_t contextIntParam);
-    bool PassControlToEnterable(APrototype_Agent* Agent, FEntryContext Context);
-    bool ReleaseControlToAgent(APrototype_Agent* Agent);
-    void SimTick(float deltaTime);
 };
 
 enum class EPropertyBindingAccessType {
@@ -97416,9 +97439,9 @@ enum class ETerrainSubtype {
     Berries = 2,
     Dummy = 3,
     Flax = 4,
-    Blocker = 5,
+    SupportedBlocker = 5,
     Collider = 6,
-    Dummy2 = 7,
+    SuspendedBlocker = 7,
     ETerrainSubtype_MAX = 8,
 };
 
@@ -98268,7 +98291,7 @@ class UInputIconManager : public UObject {
     /* 0x0028 */ FInputIconState State;
     /* 0x00d8 */ FMulticastInlineDelegate notifyChangeInIconSet;
 
-    UTexture2D* GetInputIcon(EInputIconButton button);
+    UTexture2D* GetInputIcon(EInputIconButton Button);
     bool SetPreferedPlatformIconSet(EPlatformCategory desiredIconSet);
 };
 
@@ -99010,7 +99033,7 @@ class UNaviUi : public UUserWidget {
     static UWidget* FindFirstParentWithTooltip(UWidget* searchRoot, int32_t maxDepth);
     static void ForceFocusCombobox(UComboBoxString* ComboBox);
     static void ForceOpenVirtualKeyboard(UEditableText* EditableText);
-    static void ForcePressButton(Ubutton* buttonWidget);
+    static void ForcePressButton(UButton* buttonWidget);
     bool ForceTooltipShown(UNaviUi* searchRoot, bool showTooltip, int32_t searchDepth);
     FString GetId() const;
     static ENaviUiIntent GetIntentFromMovement(FVector2D diff);
@@ -100501,8 +100524,8 @@ struct FStoryRow : public FTableRowBase {
     /* 0x0028 */ FString arg_2;
 };
 
-// Size: 0x38
-class UStoveIntegrator : public UStoveSDKObject {
+// Size: 0x28
+class UStoveIntegrator : public UObject {
 };
 
 // Size: 0x10
@@ -102551,6 +102574,30 @@ class UBorderSlot : public UPanelSlot {
 class UBrushBinding : public UPropertyBinding {
 
     FSlateBrush GetValue() const;
+};
+
+// Size: 0x5a0
+class UButton : public UContentWidget {
+    /* 0x0180 */ FButtonStyle WidgetStyle;
+    /* 0x0510 */ FLinearColor ColorAndOpacity;
+    /* 0x0520 */ FLinearColor BackgroundColor;
+    /* 0x0530 */ uint8_t ClickMethod;
+    /* 0x0531 */ uint8_t TouchMethod;
+    /* 0x0532 */ uint8_t PressMethod;
+    /* 0x0533 */ bool IsFocusable;
+    /* 0x0538 */ FMulticastInlineDelegate OnClicked;
+    /* 0x0548 */ FMulticastInlineDelegate OnPressed;
+    /* 0x0558 */ FMulticastInlineDelegate OnReleased;
+    /* 0x0568 */ FMulticastInlineDelegate OnHovered;
+    /* 0x0578 */ FMulticastInlineDelegate OnUnhovered;
+
+    bool IsPressed() const;
+    void SetBackgroundColor(FLinearColor InBackgroundColor);
+    void SetClickMethod(uint8_t InClickMethod);
+    void SetColorAndOpacity(FLinearColor InColorAndOpacity);
+    void SetPressMethod(uint8_t InPressMethod);
+    void SetStyle(const FButtonStyle& InStyle);
+    void SetTouchMethod(uint8_t InTouchMethod);
 };
 
 // Size: 0x60
@@ -104904,30 +104951,6 @@ class UWrapBoxSlot : public UPanelSlot {
     void SetNewLine(bool InForceNewLine);
     void SetPadding(FMargin InPadding);
     void SetVerticalAlignment(uint8_t InVerticalAlignment);
-};
-
-// Size: 0x5a0
-class Ubutton : public UContentWidget {
-    /* 0x0180 */ FButtonStyle WidgetStyle;
-    /* 0x0510 */ FLinearColor ColorAndOpacity;
-    /* 0x0520 */ FLinearColor BackgroundColor;
-    /* 0x0530 */ uint8_t ClickMethod;
-    /* 0x0531 */ uint8_t TouchMethod;
-    /* 0x0532 */ uint8_t PressMethod;
-    /* 0x0533 */ bool IsFocusable;
-    /* 0x0538 */ FMulticastInlineDelegate OnClicked;
-    /* 0x0548 */ FMulticastInlineDelegate OnPressed;
-    /* 0x0558 */ FMulticastInlineDelegate OnReleased;
-    /* 0x0568 */ FMulticastInlineDelegate OnHovered;
-    /* 0x0578 */ FMulticastInlineDelegate OnUnhovered;
-
-    bool IsPressed() const;
-    void SetBackgroundColor(FLinearColor InBackgroundColor);
-    void SetClickMethod(uint8_t InClickMethod);
-    void SetColorAndOpacity(FLinearColor InColorAndOpacity);
-    void SetPressMethod(uint8_t InPressMethod);
-    void SetStyle(const FButtonStyle& InStyle);
-    void SetTouchMethod(uint8_t InTouchMethod);
 };
 
 // Size: 0x38
